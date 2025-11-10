@@ -39,7 +39,7 @@ private val LightColorScheme = lightColorScheme(
 fun ReMemoryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // 커스텀 컬러 쓰려면 false 설정
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -56,8 +56,10 @@ fun ReMemoryTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb() // 상태 바 색상 변경
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+            }
         }
     }
 
