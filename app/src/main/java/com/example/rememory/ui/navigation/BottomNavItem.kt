@@ -1,6 +1,5 @@
 package com.example.rememory.ui.navigation
 
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.rememory.R
 
 sealed class BottomNavItem(
