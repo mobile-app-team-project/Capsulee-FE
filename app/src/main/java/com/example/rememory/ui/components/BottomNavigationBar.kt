@@ -72,7 +72,7 @@ fun BottomNavigationBar(
                     selectedTextColor = PurplePrimary,
                     unselectedIconColor = GrayText,
                     unselectedTextColor = GrayText,
-                    indicatorColor = PurpleExtraLight
+                    indicatorColor = Color.Transparent
                 )
             )
         }
