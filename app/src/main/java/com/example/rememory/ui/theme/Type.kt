@@ -16,6 +16,10 @@ val MontserratFontFamily = FontFamily(
     Font(R.font.montserrat_bold, FontWeight.Bold)
 )
 
+val IndieFlowerFontFamily = FontFamily(
+    Font(R.font.indie_flower, FontWeight.Normal)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     // 헤드라인
