@@ -2,6 +2,7 @@ package com.example.rememory.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rememory.R
+import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.PurpleExtraLight
 
 @Composable
@@ -39,12 +41,13 @@ fun ConditionCard(
         ConditionType.LOCATION -> R.drawable.ic_map_pin_heart_black
     }
     Card (
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, GrayBorder,RoundedCornerShape(12.dp))
             .background(Color.White)
             .padding(15.dp)
     ){
