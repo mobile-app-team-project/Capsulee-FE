@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,20 +26,106 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.rememory.R
+import com.example.rememory.ui.components.AppHeader
+import com.example.rememory.ui.components.BigSwitch
+import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.GrayText
+import com.example.rememory.ui.theme.PurpleExtraLight
 import com.example.rememory.ui.theme.PurplePrimary
 
+//서버 응답 데이터 클래스
+data class CapsuleListResponse(
+    val stats: CapsuleStats,
+    val capsules: List<CapsuleItemInfo>
+)
+
+data class CapsuleStats(
+    val total: Int,
+    val canOpen: Int,
+    val locked: Int
+)
+//캡슐 카드 데이터 클래스
 data class ConditionInfo (
     val type: String,
     val value: String
 )
 data class CapsuleItemInfo (
+    val capsuleId: Int,
     val title: String,
     val fromOrTo: String,
     val opened: Boolean,
     val conditionSummaries: List<ConditionInfo>,
 )
+
+//Mock DATA
+val mockCapsuleListResponse = CapsuleListResponse(
+    stats = CapsuleStats(
+        total = 12,
+        canOpen = 3,
+        locked = 8
+    ),
+    capsules = listOf(
+        CapsuleItemInfo(
+            capsuleId = 1,
+            title = "title",
+            fromOrTo = "To Jisoo",
+            opened = true,
+            conditionSummaries = listOf(
+                ConditionInfo(type = "TIME", value = "2025-12-25, 09:00 AM"),
+                ConditionInfo(type = "RECIPIENTS", value = "Suginnn, Bonnie, Nicolas"),
+                ConditionInfo(type = "GEO", value = "Chung-And Univ. Main Gate")
+            )
+        ),
+        CapsuleItemInfo(
+            capsuleId = 2,
+            title = "22222",
+            fromOrTo = "From Jisoo",
+            opened = false,
+            conditionSummaries = listOf(
+                ConditionInfo(type = "TIME", value = "2025-12-25, 09:00 AM"),
+                ConditionInfo(type = "GEO", value = "Chung-And Univ. Main Gate")
+            )
+        )
+    )
+)
+
+
+
+@Composable
+fun CapsuleListScreen(){
+    //캡슐 리스트 응답 목데이터
+    val mockData = mockCapsuleListResponse
+
+    Scaffold (
+        topBar = {
+            AppHeader(
+                title = "Re:Memory",
+                titleStyle = TitleLogoStyle,
+                onBackClick = null,
+                onPlusClick = null,
+                onBellClick = {}
+            )
+        }
+    ){ innerPadding ->
+        Column (
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(PurpleExtraLight),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ){
+            BigSwitch(
+                leftText = "sent", rightText = "received",
+                isLeftSelected = false
+            ) { }
+
+            mockData.capsules.forEach { capsule ->
+                CapsuleListItemCard(capsule)
+            }
+        }
+
+    }
+}
 
 @Composable
 private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
@@ -121,36 +208,6 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
 
 @Preview
 @Composable
-fun CardPreview(){
-    val capsule1 =
-        CapsuleItemInfo(
-            title = "title",
-            fromOrTo = "To Jisoo",
-            opened = true,
-            conditionSummaries = listOf(
-                ConditionInfo(type="TIME", value = "2025-12-25, 09:00 AM"),
-                ConditionInfo(type="GEO", value = "Chung-And Univ. Main Gate"),
-                ConditionInfo(type="ACTION", value = "Shaking phone 3 times")
-            )
-        )
-    val capsule2 =
-        CapsuleItemInfo(
-            title = "22222",
-            fromOrTo = "From Jisoo",
-            opened = false,
-            conditionSummaries = listOf(
-                ConditionInfo(type="TIME", value = "2025-12-25, 09:00 AM"),
-                ConditionInfo(type="GEO", value = "Chung-And Univ. Main Gate")
-            )
-        )
-
-    Column(
-        modifier = Modifier.padding(18.dp)
-            .background(GrayBorder),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        CapsuleListItemCard(capsule1)
-        CapsuleListItemCard(capsule2)
-    }
-
+fun CapsuleListScreenPreview(){
+    CapsuleListScreen()
 }
