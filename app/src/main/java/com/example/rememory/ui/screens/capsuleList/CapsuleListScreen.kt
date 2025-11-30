@@ -39,6 +39,7 @@ import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.BigSwitch
 import com.example.rememory.ui.components.TitleLogoStyle
+import com.example.rememory.ui.screens.capsuleList.components.CapsuleStatsCard
 import com.example.rememory.ui.theme.GrayText
 import com.example.rememory.ui.theme.PurpleExtraLight
 
@@ -65,8 +66,10 @@ fun CapsuleListScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 18.dp)
                 .background(PurpleExtraLight),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
+            CapsuleStatsCard(stats = uiState.stats)
+
             BigSwitch(
                 leftText = "sent",
                 rightText = "received",
@@ -79,7 +82,7 @@ fun CapsuleListScreen(
             if (uiState.isLoading) {
                 // 로딩 중일 때
                 Column(
-                    modifier = Modifier.fillMaxSize().background(PurpleExtraLight),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -98,7 +101,9 @@ fun CapsuleListScreen(
             } else {
                 // 데이터 로드 완료 시 (LazyColumn으로 변경)
                 LazyColumn (
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(PurpleExtraLight),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(uiState.capsules) { capsule ->

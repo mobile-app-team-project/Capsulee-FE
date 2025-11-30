@@ -7,6 +7,7 @@ import com.example.rememory.data.remote.api.MockCapsuleService
 import com.example.rememory.data.remote.mock.CapsuleMockData
 import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.domain.model.CapsuleDomainModel
+import com.example.rememory.domain.model.CapsuleStatsDomainModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,8 @@ data class CapsuleListState(
     val capsules: List<CapsuleDomainModel> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isSentSelected: Boolean = true  // 현재 선택된 탭: true=Sent, false=Received
+    val isSentSelected: Boolean = true,  // 현재 선택된 탭: true=Sent, false=Received
+    val stats: CapsuleStatsDomainModel = CapsuleStatsDomainModel(0, 0, 0)
 )
 
 // ----------------------------------------------------

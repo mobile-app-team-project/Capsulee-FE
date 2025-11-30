@@ -28,6 +28,20 @@ object CapsuleMockData {
         opened = false,
         conditionSummaries = listOf(mockConditionTime)
     )
+    private val sentCapsule3 = CapsuleItemDto(
+        capsuleId = 5,
+        title = "지수가 받은 생일 선물",
+        fromOrTo = "To Jisoo",
+        opened = false,
+        conditionSummaries = listOf(mockConditionGeo, mockConditionAction)
+    )
+    private val sentCapsule4 = CapsuleItemDto(
+        capsuleId = 6,
+        title = "우리의 추억의 장소",
+        fromOrTo = "To Minho",
+        opened = true,
+        conditionSummaries = listOf(mockConditionTime, mockConditionGeo)
+    )
 
     // --- Received (받은 캡슐) 목록 ---
     private val receivedCapsule1 = CapsuleItemDto(
@@ -57,7 +71,7 @@ object CapsuleMockData {
     fun getSentCapsulesDto(): CapsuleListResponseDto {
         return CapsuleListResponseDto(
             stats = mockStats,
-            capsules = listOf(sentCapsule1, sentCapsule2)
+            capsules = listOf(sentCapsule1, sentCapsule2,sentCapsule3,sentCapsule4)
         )
     }
 
