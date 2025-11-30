@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.rememory.ui.navigation.AppNavHost
+import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.theme.ReMemoryTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +22,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ReMemoryTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                // 🎯 NavController를 생성하고 관리합니다.
+                val navController = rememberNavController()
+
+                // 앱의 최상위 네비게이션 컴포넌트 호출
+                AppNavHost(navController = navController)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ReMemoryTheme {
-        Greeting("Android")
     }
 }
