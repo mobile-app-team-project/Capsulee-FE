@@ -1,6 +1,14 @@
 package com.example.rememory.domain.model
 
 /**
+ * 캡슐 목록 전체 응답 모델 (Domain)
+ */
+data class CapsuleListDomain(
+    val stats: CapsuleStatsDomainModel,
+    val capsules: List<CapsuleDomainModel>
+)
+
+/**
  * 캡슐 목록 아이템의 핵심 도메인 모델
  */
 data class CapsuleDomainModel(
@@ -31,5 +39,5 @@ data class CapsuleStatsDomainModel(
 enum class ConditionType {
     TIME,
     GEO,
-    UNKNOWN // 서버에서 정의되지 않은 타입 처리
+    ACTION // 서버에서 정의되지 않은 타입 처리
 }

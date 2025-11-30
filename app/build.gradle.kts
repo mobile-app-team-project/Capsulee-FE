@@ -58,17 +58,16 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // 1. Retrofit (HTTP Client)
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    // Retrofit (HTTP Client)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
 
-    // 2. Retrofit Converter: JSON 데이터를 Kotlin 객체로 변환하기 위해 필요합니다.
+    // Retrofit Converter: JSON 데이터를 Kotlin 객체로 변환하기 위해 필요합니다.
     //    (Kotlinx Serialization 또는 Gson 중 하나를 선택합니다. 여기서는 Gson 예시)
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    // 3. Kotlin Coroutines 지원 (Retrofit에서 suspend 함수를 사용할 수 있게 함)
-    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:3.0.0") // 만약 Kotlinx Serialization을 쓴다면
+    // Kotlin Coroutines 지원 (Retrofit에서 suspend 함수를 사용할 수 있게 함)
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
-    // 4. (선택) OkHttp 로깅 인터셉터 (API 요청/응답 디버깅 시 유용)
-    implementation("com.squareup.okhttp3:logging-interceptor:5.3.2")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
 }
