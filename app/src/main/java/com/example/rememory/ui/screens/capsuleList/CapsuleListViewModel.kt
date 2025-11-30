@@ -64,7 +64,8 @@ class CapsuleListViewModel() : ViewModel() {
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        capsules = domainData.capsules // Domain Model 사용
+                        capsules = domainData.capsules, // Domain Model 사용
+                        stats = domainData.stats
                     )
                 }
             } catch (e: Exception) {

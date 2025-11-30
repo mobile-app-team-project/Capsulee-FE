@@ -40,6 +40,7 @@ import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.BigSwitch
 import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.screens.capsuleList.components.CapsuleStatsCard
+import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.GrayText
 import com.example.rememory.ui.theme.PurpleExtraLight
 
@@ -64,8 +65,7 @@ fun CapsuleListScreen(
         Column (
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 18.dp)
-                .background(PurpleExtraLight),
+                .padding(horizontal = 18.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ){
             CapsuleStatsCard(stats = uiState.stats)
@@ -124,6 +124,12 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
         }else{
             R.drawable.ic_lock_locked
         }
+
+    //띄울 캡슐 개수
+    val maxDisplayCount = 3
+    val totalCount = capsuleInfo.conditionSummary.size
+    val hiddenCount = (totalCount - maxDisplayCount).coerceAtLeast(0) // 0 미만 방지
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -168,14 +174,18 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
             verticalAlignment = Alignment.Bottom
         ){
             Column {
-                capsuleInfo.conditionSummary.forEach { item ->
+                capsuleInfo.conditionSummary.take(maxDisplayCount).forEach { item ->
                     val iconRes =
-                        if (item.type == ConditionType.TIME) {
-                            R.drawable.ic_calrender_purple
-                        } else if (item.type == ConditionType.GEO) {
-                            R.drawable.ic_map_pin_heart_purple
-                        } else {
-                            R.drawable.ic_action_purple
+                        when (item.type) {
+                            ConditionType.TIME -> {
+                                R.drawable.ic_calrender_purple
+                            }
+                            ConditionType.GEO -> {
+                                R.drawable.ic_map_pin_heart_purple
+                            }
+                            else -> {
+                                R.drawable.ic_action_purple
+                            }
                         }
                     Row (
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -190,7 +200,13 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
                     }
                 }
             }
-            Text(text = "3 more", color = GrayText)
+            if (hiddenCount > 0) {
+                Text(
+                    text = "$hiddenCount more",
+                    color = GrayBorder,
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }

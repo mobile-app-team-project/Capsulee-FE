@@ -33,7 +33,7 @@ object CapsuleMockData {
         title = "지수가 받은 생일 선물",
         fromOrTo = "To Jisoo",
         opened = false,
-        conditionSummaries = listOf(mockConditionGeo, mockConditionAction)
+        conditionSummaries = listOf(mockConditionGeo, mockConditionAction,mockConditionAction,mockConditionAction)
     )
     private val sentCapsule4 = CapsuleItemDto(
         capsuleId = 6,
