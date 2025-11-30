@@ -1,4 +1,4 @@
-package com.example.rememory.ui.screens.capsule
+package com.example.rememory.ui.screens.capsuleList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -6,96 +6,48 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.rememory.R
+import com.example.rememory.domain.model.CapsuleDomainModel
+import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.BigSwitch
 import com.example.rememory.ui.components.TitleLogoStyle
-import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.GrayText
 import com.example.rememory.ui.theme.PurpleExtraLight
-import com.example.rememory.ui.theme.PurplePrimary
-
-//서버 응답 데이터 클래스
-data class CapsuleListResponse(
-    val stats: CapsuleStats,
-    val capsules: List<CapsuleItemInfo>
-)
-
-data class CapsuleStats(
-    val total: Int,
-    val canOpen: Int,
-    val locked: Int
-)
-//캡슐 카드 데이터 클래스
-data class ConditionInfo (
-    val type: String,
-    val value: String
-)
-data class CapsuleItemInfo (
-    val capsuleId: Int,
-    val title: String,
-    val fromOrTo: String,
-    val opened: Boolean,
-    val conditionSummaries: List<ConditionInfo>,
-)
-
-//Mock DATA
-val mockCapsuleListResponse = CapsuleListResponse(
-    stats = CapsuleStats(
-        total = 12,
-        canOpen = 3,
-        locked = 8
-    ),
-    capsules = listOf(
-        CapsuleItemInfo(
-            capsuleId = 1,
-            title = "title",
-            fromOrTo = "To Jisoo",
-            opened = true,
-            conditionSummaries = listOf(
-                ConditionInfo(type = "TIME", value = "2025-12-25, 09:00 AM"),
-                ConditionInfo(type = "RECIPIENTS", value = "Suginnn, Bonnie, Nicolas"),
-                ConditionInfo(type = "GEO", value = "Chung-And Univ. Main Gate")
-            )
-        ),
-        CapsuleItemInfo(
-            capsuleId = 2,
-            title = "22222",
-            fromOrTo = "From Jisoo",
-            opened = false,
-            conditionSummaries = listOf(
-                ConditionInfo(type = "TIME", value = "2025-12-25, 09:00 AM"),
-                ConditionInfo(type = "GEO", value = "Chung-And Univ. Main Gate")
-            )
-        )
-    )
-)
-
-
 
 @Composable
-fun CapsuleListScreen(){
-    //캡슐 리스트 응답 목데이터
-    val mockData = mockCapsuleListResponse
+fun CapsuleListScreen(
+    navController: NavController,
+    viewModel: CapsuleListViewModel = viewModel()
+){
+    val uiState by viewModel.state.collectAsState()
 
     Scaffold (
         topBar = {
@@ -104,23 +56,55 @@ fun CapsuleListScreen(){
                 titleStyle = TitleLogoStyle,
                 onBackClick = null,
                 onPlusClick = null,
-                onBellClick = {}
+                onBellClick = {},
             )
         }
     ){ innerPadding ->
         Column (
             modifier = Modifier
                 .padding(innerPadding)
+                .padding(horizontal = 18.dp)
                 .background(PurpleExtraLight),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ){
             BigSwitch(
-                leftText = "sent", rightText = "received",
-                isLeftSelected = false
-            ) { }
+                leftText = "sent",
+                rightText = "received",
+                isLeftSelected = uiState.isSentSelected
+            ) { isSent ->
+                // 토글 시, ViewModel의 onTabToggle 함수 호출
+                viewModel.onTabToggle(isSent)
+            }
 
-            mockData.capsules.forEach { capsule ->
-                CapsuleListItemCard(capsule)
+            if (uiState.isLoading) {
+                // 로딩 중일 때
+                Column(
+                    modifier = Modifier.fillMaxSize().background(PurpleExtraLight),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                    Text("Loading capsules...")
+                }
+            } else if (uiState.errorMessage != null) {
+                // 에러 발생 시
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("Error: ${uiState.errorMessage}", color = Color.Red)
+                }
+            } else {
+                // 데이터 로드 완료 시 (LazyColumn으로 변경)
+                LazyColumn (
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(uiState.capsules) { capsule ->
+                        CapsuleListItemCard(capsule)
+                    }
+                }
             }
         }
 
@@ -128,9 +112,9 @@ fun CapsuleListScreen(){
 }
 
 @Composable
-private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
+private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
     val iconRes =
-        if(capsuleInfo.opened){
+        if(capsuleInfo.isOpened){
             R.drawable.ic_lock_opened
         }else{
             R.drawable.ic_lock_locked
@@ -159,7 +143,7 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
                     fontSize = 15.sp
                 )
                 Text(
-                    text = capsuleInfo.fromOrTo,
+                    text = capsuleInfo.relationText,
                     color = GrayText,
                     fontSize = 13.sp
                 )
@@ -179,11 +163,11 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
             verticalAlignment = Alignment.Bottom
         ){
             Column {
-                capsuleInfo.conditionSummaries.forEach { item ->
+                capsuleInfo.conditionSummary.forEach { item ->
                     val iconRes =
-                        if (item.type === "TIME") {
+                        if (item.type == ConditionType.TIME) {
                             R.drawable.ic_calrender_purple
-                        } else if (item.type === "GEO") {
+                        } else if (item.type == ConditionType.GEO) {
                             R.drawable.ic_map_pin_heart_purple
                         } else {
                             R.drawable.ic_action_purple
@@ -204,10 +188,4 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleItemInfo){
             Text(text = "3 more", color = GrayText)
         }
     }
-}
-
-@Preview
-@Composable
-fun CapsuleListScreenPreview(){
-    CapsuleListScreen()
 }
