@@ -22,7 +22,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ReMemoryTheme {
-                // 🎯 NavController를 생성하고 관리합니다.
                 val navController = rememberNavController()
 
                 // 앱의 최상위 네비게이션 컴포넌트 호출
