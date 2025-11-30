@@ -1,7 +1,5 @@
 package com.example.rememory.data.remote.dto
 
-// 라이브러리 (예: Gson, Moshi, kotlinx.serialization)를 사용해 JSON을 자동 변환하기 위해 필요합니다.
-// 여기서는 kotlinx.serialization을 가정합니다.
 import kotlinx.serialization.Serializable
 
 /**

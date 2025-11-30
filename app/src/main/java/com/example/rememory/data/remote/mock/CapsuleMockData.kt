@@ -10,7 +10,7 @@ object CapsuleMockData {
 
     // --- 캡슐 개봉 조건 요약 ---
     private val mockConditionTime = ConditionInfoDto(type = "TIME", value = "2025-12-25, 09:00 AM")
-    private val mockConditionRecipients = ConditionInfoDto(type = "RECIPIENTS", value = "Suginnn, Bonnie, Nicolas")
+    private val mockConditionAction = ConditionInfoDto(type = "ACTION", value = "Shaking phone 3 times")
     private val mockConditionGeo = ConditionInfoDto(type = "GEO", value = "Chung-And Univ. Main Gate")
 
     // --- Sent (보낸 캡슐) 목록 ---
@@ -19,7 +19,7 @@ object CapsuleMockData {
         title = "2024년 졸업 축하 캡슐",
         fromOrTo = "To Jisoo",
         opened = true,
-        conditionSummaries = listOf(mockConditionTime, mockConditionRecipients, mockConditionGeo)
+        conditionSummaries = listOf(mockConditionTime, mockConditionAction, mockConditionGeo)
     )
     private val sentCapsule2 = CapsuleItemDto(
         capsuleId = 3,
@@ -35,7 +35,7 @@ object CapsuleMockData {
         title = "지수에게 받은 생일 선물 기록",
         fromOrTo = "From Jisoo",
         opened = false,
-        conditionSummaries = listOf(mockConditionGeo, mockConditionRecipients)
+        conditionSummaries = listOf(mockConditionGeo, mockConditionAction)
     )
     private val receivedCapsule2 = CapsuleItemDto(
         capsuleId = 4,
