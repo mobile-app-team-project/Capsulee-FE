@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.navigation:navigation-compose:2.9.6")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -57,4 +57,17 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Retrofit (HTTP Client)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Retrofit Converter: JSON 데이터를 Kotlin 객체로 변환하기 위해 필요합니다.
+    //    (Kotlinx Serialization 또는 Gson 중 하나를 선택합니다. 여기서는 Gson 예시)
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Kotlin Coroutines 지원 (Retrofit에서 suspend 함수를 사용할 수 있게 함)
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
 }
