@@ -5,6 +5,7 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+<<<<<<< HEAD
       <SelectionState runConfigName="requestCardPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -20,6 +21,8 @@
       <SelectionState runConfigName="MainActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+=======
+>>>>>>> c115edb (feat/#21: 온보딩 페이지 퍼블리싱)
     </selectionStates>
   </component>
 </project>
