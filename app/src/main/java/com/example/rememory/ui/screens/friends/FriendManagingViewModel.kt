@@ -7,6 +7,7 @@ import com.example.rememory.data.repository.FriendRepositoryImpl
 import com.example.rememory.data.repository.UserRepositoryImpl
 import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.model.UserSearchDomainModel
+import com.example.rememory.domain.model.UserStatus
 import com.example.rememory.domain.repository.FriendRepository
 import com.example.rememory.domain.repository.UserRepository
 import kotlinx.coroutines.Job
@@ -149,6 +150,40 @@ class FriendManagingViewModel() : ViewModel() {
                         requestList = emptyList()
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * 비즈니스 로직: 친구 요청을 보내고, UI 상태를 PENDING으로 갱신합니다.
+     */
+    fun requestFriend(userLoginId: String) {
+        viewModelScope.launch {
+            // _state.update { it.copy(isSearching = true) } // UI를 막는 경우 사용
+
+            try {
+                val success = userRepository.requestFriend(userLoginId)
+
+                if (success) {
+                    // 요청 성공 시: 검색 결과 목록에서 해당 사용자의 상태를 PENDING으로 즉시 업데이트
+                    _state.update { currentState ->
+                        val updatedResults = currentState.searchResults.map { user ->
+                            if (user.userLoginId == userLoginId) {
+                                // 상태를 PENDING으로 변경하여 UI에 반영
+                                user.copy(status = UserStatus.PENDING)
+                            } else {
+                                user
+                            }
+                        }
+                        currentState.copy(searchResults = updatedResults)
+                    }
+                } else {
+                    // 요청 실패 처리
+                    _state.update { it.copy(errorMessage = "친구 요청 실패") }
+                }
+
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "친구 요청 중 오류 발생: ${e.message}") }
             }
         }
     }

@@ -30,13 +30,15 @@ import com.example.rememory.ui.theme.GrayText
  */
 data class SearchActionCallbacks(
     // userId: 요청을 보낼 대상 ID
-    val onRequestFriend: (Int) -> Unit = {}
+    val onRequestFriend: (String) -> Unit
 )
 
 @Composable
 fun SearchCard(
     userInfo: UserSearchDomainModel,
-    callbacks: SearchActionCallbacks = SearchActionCallbacks()
+    callbacks: SearchActionCallbacks = SearchActionCallbacks(
+        onRequestFriend = {  }
+    )
 ) {
     Card(
         modifier = Modifier
@@ -97,7 +99,7 @@ fun SearchCard(
                             text = "request",
                             onClick = {
                                 // 친구 요청 이벤트 호출
-                                callbacks.onRequestFriend(userInfo.userId)
+                                callbacks.onRequestFriend(userInfo.userLoginId)
                             },
                             modifier = Modifier
                                 .width(95.dp),

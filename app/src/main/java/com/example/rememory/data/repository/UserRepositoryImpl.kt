@@ -1,6 +1,7 @@
 package com.example.rememory.data.repository
 
 
+import com.example.rememory.data.remote.dto.FriendRequestSendDto
 import com.example.rememory.data.remote.dto.UserSearchDto
 import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.model.UserSearchDomainModel
@@ -35,7 +36,7 @@ class UserRepositoryImpl: UserRepository {
 
         // Mock Logic 업데이트
         val mockData = when {
-            query.contains("yeonwoo", ignoreCase = true) -> listOf(
+            query.contains("test", ignoreCase = true) -> listOf(
                 // 1. 친구 요청을 보낸 적도, 받은 적도 없는 경우 (null -> NONE)
                 UserSearchDto(id = 1, loginID = "none_login", username = "NONE user", status = null),
                 // 2. 친구 상태인 경우 (ACCEPTED)
@@ -51,5 +52,20 @@ class UserRepositoryImpl: UserRepository {
         }
 
         return mockData.map { it.toDomainModel() }
+    }
+
+    // 친구 요청 기능
+    override suspend fun requestFriend(receiverLoginId: String): Boolean {
+        // 1. DTO 생성
+        val requestBody = FriendRequestSendDto(receiverLoginId = receiverLoginId)
+
+        delay(500) // API 대기 시뮬레이션
+
+        // 2. API 호출 (실제 구현)
+        // TODO: friendService.requestFriendApi(requestBody) 호출 및 토큰 헤더 처리 필요
+
+        // Mock Logic: 항상 성공했다고 가정하고 true 반환
+        println("로그: $receiverLoginId 에게 친구 요청 성공 (Mock)")
+        return true
     }
 }

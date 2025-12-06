@@ -27,6 +27,8 @@ import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.screens.friends.components.FriendActionCallbacks
 import com.example.rememory.ui.screens.friends.components.FriendCard
 import com.example.rememory.ui.screens.friends.components.RequestCard
+import com.example.rememory.ui.screens.friends.components.SearchActionCallbacks
+import com.example.rememory.ui.screens.friends.components.SearchCard
 
 @Composable
 fun FriendManagingScreen(
@@ -74,7 +76,7 @@ fun FriendManagingScreen(
 
             if (uiState.searchQuery.isNotEmpty()) {
                 // 검색어가 있을 경우: 검색 결과 표시
-                SearchContent(uiState = uiState)
+                SearchContent(uiState = uiState, viewModel)
             } else {
                 // 검색어가 없을 경우: 친구 목록/요청 목록 표시 (기존 로직)
                 FriendListContent(uiState = uiState, viewModel)
@@ -135,7 +137,7 @@ private fun FriendListContent(uiState: FriendManagingState, viewModel: FriendMan
 
 //검색 표시 전용 컴포넌트
 @Composable
-private fun SearchContent(uiState: FriendManagingState) {
+private fun SearchContent(uiState: FriendManagingState, viewModel: FriendManagingViewModel) {
     if (uiState.isSearching) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -152,9 +154,16 @@ private fun SearchContent(uiState: FriendManagingState) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(uiState.searchResults) { user ->
-                // TODO
-
-                Text(text = "Search Result: ${user.username} (${user.userLoginId})")
+                SearchCard(
+                    userInfo = user,
+                    callbacks = SearchActionCallbacks(
+                        // 🎯 콜백 연결: 요청 버튼 클릭 시 ViewModel 함수 호출
+                        onRequestFriend = {
+                            // 요청 대상의 Login ID를 전달해야 하므로, user.loginId를 사용합니다.
+                            viewModel.requestFriend(user.userLoginId)
+                        }
+                    )
+                )
             }
         }
     }
