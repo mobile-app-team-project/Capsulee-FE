@@ -24,6 +24,7 @@ import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.AppTextField
 import com.example.rememory.ui.components.BigSwitch
 import com.example.rememory.ui.components.TitleLogoStyle
+import com.example.rememory.ui.screens.friends.components.FriendActionCallbacks
 import com.example.rememory.ui.screens.friends.components.FriendCard
 import com.example.rememory.ui.screens.friends.components.RequestCard
 
@@ -76,7 +77,7 @@ fun FriendManagingScreen(
                 SearchContent(uiState = uiState)
             } else {
                 // 검색어가 없을 경우: 친구 목록/요청 목록 표시 (기존 로직)
-                FriendListContent(uiState = uiState)
+                FriendListContent(uiState = uiState, viewModel)
             }
 
         }
@@ -85,7 +86,7 @@ fun FriendManagingScreen(
 
 // 목록 표시 전용 컴포넌트
 @Composable
-private fun FriendListContent(uiState: FriendManagingState) {
+private fun FriendListContent(uiState: FriendManagingState, viewModel: FriendManagingViewModel) {
     if (uiState.isLoading) {
         // 로딩 중일 때
         Column(
@@ -115,7 +116,10 @@ private fun FriendListContent(uiState: FriendManagingState) {
                     if (isFriendList) {
                         // 친구 목록 탭이 선택된 경우
                         FriendCard(
-                            friendInfo = item // item은 FriendItemDomainModel 타입
+                            friendInfo = item, // item은 FriendItemDomainModel 타입
+                            callbacks = FriendActionCallbacks(
+                                onDelete = viewModel::deleteFriend
+                            )
                         )
                     } else {
                         // 친구 요청 탭이 선택된 경우

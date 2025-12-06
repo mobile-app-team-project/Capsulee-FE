@@ -9,8 +9,11 @@ interface FriendRepository {
      */
     suspend fun getFriendList(): List<FriendItemDomainModel>
 
+
     /**
      * 친구 요청 목록 (요청)을 가져옵니다.
      */
     suspend fun getFriendRequests(): List<FriendItemDomainModel>
+
+    suspend fun deleteFriend(friendshipId: Int)
 }

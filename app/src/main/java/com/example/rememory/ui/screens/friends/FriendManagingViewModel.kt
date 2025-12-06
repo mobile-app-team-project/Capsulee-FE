@@ -2,9 +2,11 @@ package com.example.rememory.ui.screens.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rememory.data.remote.ApiObject
 import com.example.rememory.data.repository.FriendRepositoryImpl
 import com.example.rememory.data.repository.UserRepositoryImpl
 import com.example.rememory.domain.model.FriendItemDomainModel
+import com.example.rememory.domain.model.UserSearchDomainModel
 import com.example.rememory.domain.repository.FriendRepository
 import com.example.rememory.domain.repository.UserRepository
 import kotlinx.coroutines.Job
@@ -28,7 +30,7 @@ data class FriendManagingState(
     val errorMessage: String? = null,
     //친구 검색
     val searchQuery: String = "",
-    val searchResults: List<FriendItemDomainModel> = emptyList(),
+    val searchResults: List<UserSearchDomainModel> = emptyList(),
     val isSearching: Boolean = false
 )
 
@@ -37,7 +39,9 @@ data class FriendManagingState(
 // ----------------------------------------------------
 
 class FriendManagingViewModel() : ViewModel() {
-    private val repository: FriendRepository = FriendRepositoryImpl()
+    private val repository: FriendRepository = FriendRepositoryImpl(
+        //ApiObject.friendService
+    )
     private val userRepository: UserRepository = UserRepositoryImpl()
 
     private val _state = MutableStateFlow(FriendManagingState())
@@ -93,6 +97,28 @@ class FriendManagingViewModel() : ViewModel() {
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * 비즈니스 로직: 특정 친구를 삭제하고 목록을 갱신합니다.
+     */
+    fun deleteFriend(friendshipId: Int) {
+        viewModelScope.launch {
+            // UI에 로딩 상태를 표시할 수도 있습니다. (_state.update { it.copy(isLoading = true) })
+
+            try {
+                // 1. Repository를 통해 삭제 API 호출
+                repository.deleteFriend(friendshipId)
+
+                // 2. 삭제 성공 후, 친구 목록 데이터를 갱신 (전체 목록 재로드)
+                loadFriendData()
+
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(errorMessage = "친구 삭제 실패: ${e.message}")
+                }
+            }
+        }
     }
 
     /**
