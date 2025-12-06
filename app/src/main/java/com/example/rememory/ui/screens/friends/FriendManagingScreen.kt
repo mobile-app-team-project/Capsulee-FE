@@ -126,7 +126,10 @@ private fun FriendListContent(uiState: FriendManagingState, viewModel: FriendMan
                     } else {
                         // 친구 요청 탭이 선택된 경우
                         RequestCard(
-                            requestInfo = item // item은 FriendItemDomainModel 타입
+                            requestInfo = item, // item은 FriendItemDomainModel 타입
+                            onAccept = { viewModel.processFriendRequest(item.userLoginId, true) },
+                            onDecline = { viewModel.processFriendRequest(item.userLoginId, false) }
+
                         )
                     }
                 }

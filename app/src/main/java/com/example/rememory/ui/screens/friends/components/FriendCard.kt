@@ -117,7 +117,6 @@ fun FriendCard(
                             .background(Color.White)
                             .height(35.dp)
                             .width(70.dp)
-                            .padding( horizontal = 4.dp)
                     )
                 }
             }

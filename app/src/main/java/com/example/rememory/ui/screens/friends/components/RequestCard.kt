@@ -30,16 +30,20 @@ import com.example.rememory.ui.theme.GrayText
 
 @Composable
 fun RequestCard(
-    requestInfo : FriendItemDomainModel
+    requestInfo : FriendItemDomainModel,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
 ){
     Card (
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 18.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
     ){
         Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 22.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.Start
         ){
@@ -74,8 +78,16 @@ fun RequestCard(
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
 
             ){
-                PrimaryButton("accept", onClick = {/*친구 승인 api 호출*/})
-                GrayButton("decline", onClick = {/*친구 거절 api 호출*/})
+                PrimaryButton(
+                    text = "accept",
+                    onClick = onAccept,
+                    modifier = Modifier.weight(1f)
+                )
+                GrayButton(
+                    text = "decline",
+                    onClick = onDecline,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
@@ -86,6 +98,13 @@ fun RequestCard(
 @Composable
 fun requestCardPreview(){
     RequestCard(
-        FriendItemDomainModel(2, 2, "user_y", "윤우"),
+        FriendItemDomainModel(
+            2,
+            2,
+            "user_y",
+            "윤우"
+        ),
+        onAccept = {},
+        onDecline = {},
     )
 }

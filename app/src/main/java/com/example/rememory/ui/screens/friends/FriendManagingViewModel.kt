@@ -187,4 +187,30 @@ class FriendManagingViewModel() : ViewModel() {
             }
         }
     }
+
+    /**
+     * 비즈니스 로직: 친구 요청을 처리하고 목록을 갱신합니다.
+     * @param senderLoginId 요청을 보낸 사용자의 Login ID
+     * @param isAccepted true면 수락("ACCEPTED"), false면 거절("REJECTED")
+     */
+    fun processFriendRequest(senderLoginId: String, isAccepted: Boolean) {
+        viewModelScope.launch {
+            val actionStatus = if (isAccepted) "ACCEPTED" else "REJECTED"
+
+            try {
+                // 1. Repository를 통해 요청 처리 API 호출
+                val success = repository.processFriendRequest(senderLoginId, actionStatus)
+
+                if (success) {
+                    // 2. 요청 성공 시, 친구 목록 및 요청 목록 갱신 (전체 목록 재로드)
+                    loadFriendData()
+                } else {
+                    _state.update { it.copy(errorMessage = "요청 처리 실패.") }
+                }
+
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "요청 처리 중 오류 발생: ${e.message}") }
+            }
+        }
+    }
 }

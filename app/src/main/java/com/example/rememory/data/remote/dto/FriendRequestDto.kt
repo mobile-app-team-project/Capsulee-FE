@@ -21,3 +21,12 @@ data class FriendRequestResponseDto(
     val senderLoginId: String,
     val receiverLoginId: String
 )
+/**
+ * 친구 요청 처리 API 요청 바디 (Request Body - PUT)
+ */
+@Serializable
+data class FriendRequestProcessDto(
+    val senderLoginId: String,
+    val receiverLoginId: String,
+    val status: String // "ACCEPTED" 또는 "REJECTED"
+)
