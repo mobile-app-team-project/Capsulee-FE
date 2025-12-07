@@ -39,6 +39,7 @@ import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.BigSwitch
 import com.example.rememory.ui.components.TitleLogoStyle
+import com.example.rememory.ui.navigation.Screen
 import com.example.rememory.ui.screens.capsuleList.components.CapsuleStatsCard
 import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.GrayText
@@ -57,7 +58,7 @@ fun CapsuleListScreen(
                 title = "Re:Memory",
                 titleStyle = TitleLogoStyle,
                 onBackClick = null,
-                onPlusClick = null,
+                onPlusClick = { navController.navigate(Screen.CapsuleCreate.route) },
                 onBellClick = {},
             )
         }
@@ -182,7 +183,7 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
                             ConditionType.TIME -> {
                                 R.drawable.ic_calrender_purple
                             }
-                            ConditionType.GEO -> {
+                            ConditionType.LOCATION -> {
                                 R.drawable.ic_map_pin_heart_purple
                             }
                             else -> {

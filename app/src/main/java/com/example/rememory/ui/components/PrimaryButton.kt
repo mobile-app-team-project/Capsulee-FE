@@ -1,5 +1,6 @@
 package com.example.rememory.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.rememory.ui.theme.BackgroundLight
 import com.example.rememory.ui.theme.MontserratFontFamily
 import com.example.rememory.ui.theme.PurplePrimary
 import com.example.rememory.ui.theme.ReMemoryTheme
@@ -25,6 +27,7 @@ fun PrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
     textStyle: TextStyle = TextStyle(
         fontFamily = MontserratFontFamily,
@@ -33,13 +36,22 @@ fun PrimaryButton(
     ),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding
 ) {
+    val finalModifier = if (enabled) {
+        modifier // 활성일 경우 border 없음
+    } else {
+        modifier.then(Modifier.border(1.dp, PurplePrimary, shape))
+    }
+
     Button(
         onClick = onClick,
-        modifier = modifier,
+        enabled = enabled,
+        modifier = finalModifier,
         shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = PurplePrimary,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = BackgroundLight,
+            disabledContentColor = PurplePrimary
         ),
         contentPadding = contentPadding
     ) {

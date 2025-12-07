@@ -2,16 +2,19 @@ package com.example.rememory.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.compose.material3.Scaffold // Scaffold import
+import androidx.compose.material3.Scaffold
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.auth.LoginScreen
 import com.example.rememory.ui.screens.auth.SignUpScreen
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.rememory.ui.components.BottomNavigationBar
+import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
 import com.example.rememory.ui.screens.onboarding.OnboardingScreen
@@ -25,45 +28,33 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Onboarding.route, // 캡슐 목록을 시작 화면으로 설정
-        modifier = modifier
-    ) {
-        // 온보딩 화면 (BottomBar 없음)
-        composable(Screen.Onboarding.route) {
-            OnboardingScreen(navController = navController)
-        }
+    // 1. 현재 네비게이션 경로(route)를 실시간으로 추적합니다.
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-        composable(Screen.SignUp.route) {
-            SignUpScreen(navController = navController)
-        }
-
-        composable(Screen.Login.route) {
-             LoginScreen(navController = navController)
-        }
-
-        // 메인 앱 화면들 (BottomBar 포함)
-        composable(Screen.Home.route) {
-            MainScaffold(navController = navController)
-        }
-    }
-}
-
-@Composable
-private fun MainScaffold(navController: NavHostController) {
-    val mainNavController = rememberNavController()
+    // 2. 하단 바를 보여줘야 하는 화면들의 경로 목록을 정의합니다.
+    val bottomBarRoutes = listOf(
+        BottomNavItem.Capsule.route,
+        BottomNavItem.Home.route,
+        BottomNavItem.Friends.route,
+        BottomNavItem.MyPage.route
+    )
 
     Scaffold(
+        modifier = modifier,
+        // 3. 현재 경로가 bottomBarRoutes 목록에 포함되어 있을 때만 BottomNavigationBar를 렌더링합니다.
         bottomBar = {
-            BottomNavigationBar(navController = mainNavController)
+            if (currentRoute in bottomBarRoutes) {
+                BottomNavigationBar(navController = navController)
+            }
         }
     ) { innerPadding ->
         NavHost(
-            navController = mainNavController,
-            startDestination = BottomNavItem.Home.route,
+            navController = navController,
+            startDestination = BottomNavItem.Onboarding.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // --- 하단 바가 보이는 화면들 ---
             composable(BottomNavItem.Capsule.route) {
                 val viewModel: CapsuleListViewModel = hiltViewModel()
 
@@ -84,6 +75,16 @@ private fun MainScaffold(navController: NavHostController) {
             }
             composable(BottomNavItem.MyPage.route) {
                 MyPageScreen(navController = mainNavController)
+            }
+
+            // --- 하단 바가 보이지 않는 화면 ---
+            composable(Screen.CapsuleCreate.route) {
+                // 이 화면으로 이동하면, 위의 조건문에 따라 bottomBar가 렌더링되지 않습니다.
+                CreateCapsuleFlow(navController = navController)
+            }
+
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(navController = navController)
             }
         }
     }
