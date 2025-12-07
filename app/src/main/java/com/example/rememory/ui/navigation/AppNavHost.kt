@@ -7,9 +7,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.material3.Scaffold // Scaffold import
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
+import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
 import com.example.rememory.ui.screens.friends.FriendManagingScreen
+import com.example.rememory.ui.screens.friends.FriendManagingViewModel
 import com.example.rememory.ui.screens.myPage.MyPageScreen
 
 @Composable
@@ -34,15 +37,21 @@ fun AppNavHost(
             // 캡슐 목록 화면 정의
             // ----------------------------------------------------
             composable(BottomNavItem.Capsule.route) {
+                val viewModel: CapsuleListViewModel = hiltViewModel()
+
                 CapsuleListScreen(
-                    navController = navController // 화면에 NavController 전달 (네비게이션 액션 사용 가능)
+                    navController = navController,
+                    viewModel = viewModel
                 )
             }
             composable(BottomNavItem.Home.route) {
                 // HomeScreen(navController = navController)
             }
             composable(BottomNavItem.Friends.route) {
-                FriendManagingScreen()
+                val viewModel: FriendManagingViewModel = hiltViewModel()
+                FriendManagingScreen(
+                    viewModel = viewModel
+                )
             }
             composable(BottomNavItem.MyPage.route) {
                 MyPageScreen(navController = navController)
