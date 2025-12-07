@@ -57,11 +57,12 @@ private fun ConditionInfoDto.toDomainModel(): ConditionDomainModel {
     val actualValue = this.value ?: ""
 
     return ConditionDomainModel(
-        type = when (this.type.uppercase()) {
-            "LOCATION" -> ConditionType.LOCATION
+        // 하나의 when 문으로 모든 조건을 처리
         type = when (actualType) {
+            "LOCATION" -> ConditionType.LOCATION
             "TIME" -> ConditionType.TIME
-            else -> ConditionType.ACTION
+            "WEATHER" -> ConditionType.WEATHER
+            else -> ConditionType.ACTION // 그 외의 모든 경우는 ACTION으로 처리
         },
         value = actualValue
     )
