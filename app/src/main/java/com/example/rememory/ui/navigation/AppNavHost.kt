@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold // Scaffold import
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.rememory.ui.components.BottomNavigationBar
+import com.example.rememory.ui.screens.auth.LoginScreen
 import com.example.rememory.ui.screens.auth.SignUpScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
@@ -38,7 +39,7 @@ fun AppNavHost(
         }
 
         composable(Screen.Login.route) {
-            // LoginScreen(navController = navController)
+             LoginScreen(navController = navController)
         }
 
         // 메인 앱 화면들 (BottomBar 포함)
