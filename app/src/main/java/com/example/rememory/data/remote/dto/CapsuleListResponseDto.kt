@@ -1,5 +1,6 @@
 package com.example.rememory.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -8,6 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CapsuleListResponseDto(
     val stats: CapsuleStatsDto,
+    @SerialName("capsule")
     val capsules: List<CapsuleItemDto>
 )
 
@@ -21,14 +23,15 @@ data class CapsuleStatsDto(
 @Serializable
 data class CapsuleItemDto(
     val capsuleId: Int,
-    val title: String,
-    val fromOrTo: String,
+    val title: String?,
+    val fromOrTo: String?,
     val opened: Boolean,
-    val conditionSummaries: List<ConditionInfoDto>,
+    @SerialName("conditionSummaries")
+    val conditionSummaries: List<ConditionInfoDto>?,
 )
 
 @Serializable
 data class ConditionInfoDto (
-    val type: String,
-    val value: String
+    val type: String?,
+    val value: String?
 )

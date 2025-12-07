@@ -2,23 +2,24 @@ package com.example.rememory.ui.screens.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rememory.data.remote.ApiObject
-import com.example.rememory.data.repository.FriendRepositoryImpl
-import com.example.rememory.data.repository.UserRepositoryImpl
 import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.model.UserSearchDomainModel
 import com.example.rememory.domain.model.UserStatus
 import com.example.rememory.domain.repository.FriendRepository
 import com.example.rememory.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 // ----------------------------------------------------
 // 1. UI 상태 정의
 // ----------------------------------------------------
@@ -39,11 +40,11 @@ data class FriendManagingState(
 // 2. ViewModel 구현
 // ----------------------------------------------------
 
-class FriendManagingViewModel() : ViewModel() {
-    private val repository: FriendRepository = FriendRepositoryImpl(
-        //ApiObject.friendService
-    )
-    private val userRepository: UserRepository = UserRepositoryImpl()
+@HiltViewModel
+class FriendManagingViewModel @Inject constructor(
+    private val repository: FriendRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(FriendManagingState())
     val state: StateFlow<FriendManagingState> = _state
@@ -77,6 +78,11 @@ class FriendManagingViewModel() : ViewModel() {
         // Debounce: 사용자가 입력을 멈춘 후 300ms 후에만 검색 시작 (서버 부하 감소)
         _state.asStateFlow()
             .debounce(300L)
+
+            .distinctUntilChanged { oldState, newState ->
+                // 검색어(searchQuery) 값이 이전과 같으면 true를 반환하여 이벤트를 무시합니다.
+                oldState.searchQuery == newState.searchQuery
+            }
             .onEach { state ->
                 val query = state.searchQuery
                 if (query.isBlank()) {
@@ -89,7 +95,7 @@ class FriendManagingViewModel() : ViewModel() {
                 searchJob = viewModelScope.launch {
                     _state.update { it.copy(isSearching = true) }
                     try {
-                        val results = userRepository.searchAllUsers(query) // 🎯 검색 API 호출
+                        val results = userRepository.getAllUsers(query) //  검색 API 호출
                         _state.update { it.copy(searchResults = results, isSearching = false) }
                     } catch (e: Exception) {
                         // 검색 에러 처리 (로그 출력 등)
@@ -98,6 +104,21 @@ class FriendManagingViewModel() : ViewModel() {
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * 검색 상태를 초기화하고 모든 검색 결과를 숨깁니다.
+     */
+    fun resetSearchState() {
+        // searchQuery를 빈 문자열로 업데이트하고, searchResults도 비웁니다.
+        _state.update {
+            it.copy(
+                searchQuery = "",
+                searchResults = emptyList(),
+                isSearching = false
+            )
+        }
+        searchJob?.cancel()
     }
 
     /**
@@ -162,7 +183,7 @@ class FriendManagingViewModel() : ViewModel() {
             // _state.update { it.copy(isSearching = true) } // UI를 막는 경우 사용
 
             try {
-                val success = userRepository.requestFriend(userLoginId)
+                val success = repository.requestFriend(userLoginId)
 
                 if (success) {
                     // 요청 성공 시: 검색 결과 목록에서 해당 사용자의 상태를 PENDING으로 즉시 업데이트
@@ -190,8 +211,6 @@ class FriendManagingViewModel() : ViewModel() {
 
     /**
      * 비즈니스 로직: 친구 요청을 처리하고 목록을 갱신합니다.
-     * @param senderLoginId 요청을 보낸 사용자의 Login ID
-     * @param isAccepted true면 수락("ACCEPTED"), false면 거절("REJECTED")
      */
     fun processFriendRequest(senderLoginId: String, isAccepted: Boolean) {
         viewModelScope.launch {

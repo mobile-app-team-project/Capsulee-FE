@@ -15,7 +15,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.rememory.ui.navigation.AppNavHost
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.theme.ReMemoryTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
