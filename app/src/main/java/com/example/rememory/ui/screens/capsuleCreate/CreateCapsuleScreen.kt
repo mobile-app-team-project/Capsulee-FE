@@ -32,6 +32,7 @@ fun CreateCapsuleScreen(
     onNext: () -> Unit,
     rightEnabled: Boolean = true,
     isSingleButton: Boolean = false,
+    showBottomBar: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Scaffold (
@@ -43,15 +44,17 @@ fun CreateCapsuleScreen(
             )
         },
         bottomBar = {
-            BottomButtons(
-                showPrevious = showPrevious,
-                previousText = previousText,
-                nextText = nextText,
-                onPrevious = onPrevious,
-                onNext = onNext,
-                isSingleButton = isSingleButton,
-                rightEnabled = rightEnabled
-            )
+            if (showBottomBar) {
+                BottomButtons(
+                    showPrevious = showPrevious,
+                    previousText = previousText,
+                    nextText = nextText,
+                    onPrevious = onPrevious,
+                    onNext = onNext,
+                    isSingleButton = isSingleButton,
+                    rightEnabled = rightEnabled
+                )
+            }
         },
         containerColor = BackgroundLight
     ) { innerPadding ->
