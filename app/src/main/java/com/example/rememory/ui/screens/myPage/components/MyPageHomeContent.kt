@@ -44,7 +44,7 @@ fun MyPageHomeContent(
         Column(
             Modifier
                 .padding(innerPadding)
-                .padding(18.dp),
+                .padding(start = 18.dp, end = 18.dp, top = 10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             MyInfoCard(

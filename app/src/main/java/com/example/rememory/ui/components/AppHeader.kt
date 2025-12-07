@@ -79,7 +79,7 @@ fun AppHeader(
                         .size(30.dp)
                         .clickable { onPlusClick() }
                 )
-                Spacer(Modifier.width(3.dp))
+                Spacer(Modifier.width(18.dp))
             }
         }
     }

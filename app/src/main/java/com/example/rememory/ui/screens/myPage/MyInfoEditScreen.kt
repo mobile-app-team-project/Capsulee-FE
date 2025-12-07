@@ -57,11 +57,7 @@ fun MyInfoEditScreen(
                 title = "",
                 titleStyle = TitleLogoStyle,
                 onBackClick = {
-                    navController.navigate(BottomNavItem.MyPage.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    navController.popBackStack()
                 },
                 onPlusClick = {},
             )
@@ -88,7 +84,7 @@ fun MyInfoEditScreen(
                             .size(70.dp)
                             .clip(CircleShape)
                             .border(width = 1.dp, color = GrayBorder, shape = CircleShape)
-                            .background(Color.Transparent),
+                            .background(Color.White),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -136,7 +132,7 @@ fun MyInfoEditScreen(
                 // 에러 메시지 표시
                 if (uiState.errorMessage != null) {
                     Text(
-                        text = uiState.errorMessage!!,
+                        text = "That Id is already in use",
                         color = Color.Red,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -149,12 +145,10 @@ fun MyInfoEditScreen(
                 onClick = {
                     if (!uiState.isLoading) {
                         viewModel.saveMyInfo {
-                            navController.navigate(BottomNavItem.MyPage)
+                            navController.popBackStack()
                         }
                     }
                 },
-                // 로딩 중일 때는 버튼 비활성화
-                //enabled = !uiState.isLoading,
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             )
 

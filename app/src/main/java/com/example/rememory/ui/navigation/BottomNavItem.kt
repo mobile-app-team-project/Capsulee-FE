@@ -1,7 +1,9 @@
 package com.example.rememory.ui.navigation
 
 import com.example.rememory.R
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class BottomNavItem(
     val route: String,
     val title: String,

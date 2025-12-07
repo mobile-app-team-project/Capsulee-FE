@@ -47,7 +47,7 @@ fun MyPageScreen(
             // B. 내 정보 수정 화면
             composable(AppDestinations.MY_INFO_EDIT_ROUTE) {
                 MyInfoEditScreen(
-                    navController,
+                    myPageNavController,
                     viewModel = viewModel
                 )
             }
