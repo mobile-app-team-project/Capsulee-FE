@@ -4,6 +4,7 @@ package com.example.rememory.data.remote.api
 import com.example.rememory.data.remote.dto.UserSearchDto
 import com.example.rememory.data.remote.dto.FriendRequestSendDto
 import com.example.rememory.data.remote.dto.FriendRequestResponseDto
+import com.example.rememory.data.remote.dto.MyInfoResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -17,4 +18,7 @@ interface UserService {
     /** 친구 요청: POST /friends (토큰 헤더 필요) */
     @POST("/friends")
     suspend fun requestFriendApi(@Body request: FriendRequestSendDto): FriendRequestResponseDto
+
+    @GET("/users/me")
+    suspend fun getMyInfoApi(): MyInfoResponseDto
 }
