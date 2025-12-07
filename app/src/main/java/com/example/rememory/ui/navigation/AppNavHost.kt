@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold // Scaffold import
 import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.friends.FriendManagingScreen
+import com.example.rememory.ui.screens.myPage.MyPageScreen
 
 @Composable
 fun AppNavHost(
@@ -37,10 +38,6 @@ fun AppNavHost(
                     navController = navController // 화면에 NavController 전달 (네비게이션 액션 사용 가능)
                 )
             }
-
-            // ----------------------------------------------------
-            // TODO: 다른 Bottom Bar 항목 및 화면을 여기에 정의합니다.
-            // ----------------------------------------------------
             composable(BottomNavItem.Home.route) {
                 // HomeScreen(navController = navController)
             }
@@ -48,7 +45,7 @@ fun AppNavHost(
                 FriendManagingScreen()
             }
             composable(BottomNavItem.MyPage.route) {
-                // MyPageScreen(navController = navController)
+                MyPageScreen(navController = navController)
             }
         }
     }
