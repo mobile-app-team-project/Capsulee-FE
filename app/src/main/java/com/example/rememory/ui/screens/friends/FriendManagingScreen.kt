@@ -106,7 +106,7 @@ private fun FriendListContent(uiState: FriendManagingState, viewModel: FriendMan
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CircularProgressIndicator()
-            Text("데이터 로딩 중...")
+            Text("Loading...")
         }
     } else if (uiState.errorMessage != null) {
         // 에러 발생 시

@@ -166,7 +166,7 @@ class FriendManagingViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "데이터 로드 실패: ${e.message}",
+                        errorMessage = "load data Failed: ${e.message}",
                         friendList = emptyList(),
                         requestList = emptyList()
                     )
