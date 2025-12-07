@@ -5,5 +5,5 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
 
     //Hilt 플러그인
-    id("com.google.dagger.hilt.android") version "2.51" apply false
+    id("com.google.dagger.hilt.android") version "2.55" apply false
 }
