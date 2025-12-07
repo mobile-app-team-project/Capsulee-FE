@@ -3,6 +3,7 @@ package com.example.rememory.ui.screens.capsuleCreate
 import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
+import com.example.rememory.domain.model.ConditionType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,5 +65,22 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
 
     fun onTimeSelected(time: LocalTime?) {
         _selectedTime.value = time
+    }
+
+    // Step3 - 선택된 조건들
+    private val _selectedConditions = MutableStateFlow<List<ConditionType>>(emptyList())
+    val selectedConditions: StateFlow<List<ConditionType>> = _selectedConditions.asStateFlow()
+
+    fun toggleCondition(condition: ConditionType) {
+        _selectedConditions.value =
+            if (_selectedConditions.value.contains(condition)) {
+                _selectedConditions.value - condition
+            } else {
+                _selectedConditions.value + condition
+            }
+    }
+
+    fun clearConditions() {
+        _selectedConditions.value = emptyList()
     }
 }

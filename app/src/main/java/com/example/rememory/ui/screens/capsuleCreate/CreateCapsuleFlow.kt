@@ -84,23 +84,6 @@ fun CreateCapsuleFlow(
 ) {
     var step by remember { mutableStateOf(1) }
 
-    // 조건 선택 상태
-    val selectedConditions = remember { mutableStateListOf<ConditionType>() }
-
-    // 조건 순서 정렬 (고정 우선순위)
-    val orderedConditionSteps = selectedConditions.sortedWith(compareBy {
-        when (it) {
-            ConditionType.LOCATION -> 1
-            ConditionType.WEATHER -> 2
-            ConditionType.ACTION -> 3
-            else -> Int.MAX_VALUE
-        }
-    })
-
-    // 총 단계 수 계산
-    val totalSteps = 3 + orderedConditionSteps.size + 2
-    // 1: 기본정보, 2: 날짜, 3: 조건선택, 4~n: 조건 상세, n+1: 수신자 선택, n+2: 확인 및 최종 제출
-
     // Step 1 상태
     val capsuleTitle by viewModel.title.collectAsState()
     val capsuleMessage by viewModel.message.collectAsState()
@@ -116,6 +99,23 @@ fun CreateCapsuleFlow(
     // Step 2 상태
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedTime by viewModel.selectedTime.collectAsState()
+
+    // Step 3 상태
+    val selectedConditions by viewModel.selectedConditions.collectAsState()
+
+    // 조건 순서 정렬 (고정 우선순위)
+    val orderedConditionSteps = selectedConditions.sortedWith(compareBy {
+        when (it) {
+            ConditionType.LOCATION -> 1
+            ConditionType.WEATHER -> 2
+            ConditionType.ACTION -> 3
+            else -> Int.MAX_VALUE
+        }
+    })
+
+    // 총 단계 수 계산
+    val totalSteps = 3 + orderedConditionSteps.size + 2
+    // 1: 기본정보, 2: 날짜, 3: 조건선택, 4~n: 조건 상세, n+1: 수신자 선택, n+2: 확인 및 최종 제출
 
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
@@ -159,17 +159,11 @@ fun CreateCapsuleFlow(
                 onTimeChange = { viewModel.onTimeSelected(it) }
             )
 
-
             3 -> Step3SelectConditions(
                 selectedConditions = selectedConditions,
-                onToggle = { condition ->
-                    if (selectedConditions.contains(condition))
-                        selectedConditions.remove(condition)
-                    else
-                        selectedConditions.add(condition)
-                }
+                onToggle = { condition -> viewModel.toggleCondition(condition) }
             )
-//
+
 //            in 4 until 4 + orderedConditionSteps.size -> {
 //                val currentCondition = orderedConditionSteps[step - 4]
 //
