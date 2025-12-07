@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 interface CapsuleService {
 
     // Query Parameter: ?type=sent 또는 ?type=received
-    @GET("/v1/capsules")
+    @GET("/capsules")
     suspend fun getCapsules(
         @Query("type") type: String // "sent" 또는 "received"
     ): CapsuleListResponseDto

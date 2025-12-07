@@ -12,6 +12,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
+import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
+import com.example.rememory.ui.screens.friends.FriendManagingScreen
+import com.example.rememory.ui.screens.friends.FriendManagingViewModel
+import com.example.rememory.ui.screens.myPage.MyPageScreen
 
 @Composable
 fun AppNavHost(
@@ -46,16 +50,24 @@ fun AppNavHost(
         ) {
             // --- 하단 바가 보이는 화면들 ---
             composable(BottomNavItem.Capsule.route) {
-                CapsuleListScreen(navController = navController)
+                val viewModel: CapsuleListViewModel = hiltViewModel()
+
+                CapsuleListScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
             composable(BottomNavItem.Home.route) {
                 // HomeScreen(navController = navController)
             }
             composable(BottomNavItem.Friends.route) {
-                // FriendsScreen(navController = navController)
+                val viewModel: FriendManagingViewModel = hiltViewModel()
+                FriendManagingScreen(
+                    viewModel = viewModel
+                )
             }
             composable(BottomNavItem.MyPage.route) {
-                // MyPageScreen(navController = navController)
+                MyPageScreen(navController = navController)
             }
 
             // --- 하단 바가 보이지 않는 화면 ---

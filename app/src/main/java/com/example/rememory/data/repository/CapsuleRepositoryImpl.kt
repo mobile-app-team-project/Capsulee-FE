@@ -18,32 +18,14 @@ import kotlinx.coroutines.delay
  * Domain Repository의 구현체, 서버 통신 담당
  */
 class CapsuleRepositoryImpl(
-    private val apiService: CapsuleService // Retrofit 서비스 주입
+    private val capsuleService: CapsuleService // Retrofit 서비스 주입
 ) : CapsuleRepository {
 
     override suspend fun getCapsuleList(isSent: Boolean): CapsuleListDomain {
 
         // 1. API 호출 (DTO 반환)
         val type = if (isSent) "sent" else "received"
-        val responseDto = apiService.getCapsules(type)
-
- /*  //실제 api 호출시
-        // 2. DTO를 Domain Model로 변환 (Mapping)
-        val domainCapsules = responseDto.capsules.map { it.toDomainModel() }
-        val domainStats = responseDto.stats.toDomainModel()
-*/
-
-
-        // 네트워크 지연 시뮬레이션: UI에서 로딩 상태를 확인할 수 있도록 잠시 기다립니다.
-        delay(800)
-/*
-        // 1. Mock 데이터 호출
-        val responseDto = if (isSent) {
-            CapsuleMockData.getSentCapsulesDto()
-        } else {
-            CapsuleMockData.getReceivedCapsulesDto()
-        }
- */
+        val responseDto = capsuleService.getCapsules(type)
 
         // 2. DTO를 Domain Model로 변환
         val domainCapsules = responseDto.capsules.map { it.toDomainModel() }
@@ -63,21 +45,25 @@ class CapsuleRepositoryImpl(
 private fun CapsuleItemDto.toDomainModel(): CapsuleDomainModel {
     return CapsuleDomainModel(
         id = this.capsuleId,
-        title = this.title,
-        relationText = this.fromOrTo,
+        title = this.title ?: "no title",
+        relationText = this.fromOrTo ?: "",
         isOpened = this.opened,
-        conditionSummary = this.conditionSummaries.map { it.toDomainModel() }
+        conditionSummary = this.conditionSummaries?.map { it.toDomainModel() } ?: emptyList()
     )
 }
 
 private fun ConditionInfoDto.toDomainModel(): ConditionDomainModel {
+    val actualType = this.type?.uppercase() ?: "ACTION"
+    val actualValue = this.value ?: ""
+
     return ConditionDomainModel(
         type = when (this.type.uppercase()) {
             "LOCATION" -> ConditionType.LOCATION
+        type = when (actualType) {
             "TIME" -> ConditionType.TIME
             else -> ConditionType.ACTION
         },
-        value = this.value
+        value = actualValue
     )
 }
 

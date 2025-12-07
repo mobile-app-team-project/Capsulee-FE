@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("kotlin-kapt") // Kapt 플러그인 추가 (Hilt 프로세서 사용)
+    id("com.google.dagger.hilt.android") // Hilt 플러그인 적용
 }
 
 android {
@@ -72,4 +75,14 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    // Hilt Dependencies
+    implementation("com.google.dagger:hilt-android:2.51")
+    kapt("com.google.dagger:hilt-compiler:2.51") // ✅ Annotation Processor
+
+    // Compose Navigation과의 통합을 위해 필요
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0") // ✅ Hilt Compose
+
+    // ViewModel에 Hilt를 사용하기 위해 필요
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+    kapt("androidx.hilt:hilt-compiler:1.2.0") // ✅ Hilt 컴파일러
 }
