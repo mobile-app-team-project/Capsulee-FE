@@ -36,8 +36,7 @@ fun MyInfoCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -124,7 +123,7 @@ private fun RowScope.StatItem(title: String, count: Int) {
     Column(
         modifier = Modifier
             .weight(1f)
-            .padding(horizontal = 4.dp),
+            .padding(horizontal = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -138,7 +137,7 @@ private fun RowScope.StatItem(title: String, count: Int) {
         // 데이터 블록
         Box(
             modifier = Modifier
-                .width(IntrinsicSize.Max)
+                .fillMaxWidth()
                 .background(PurpleLight.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
                 .padding(vertical = 14.dp, horizontal = 20.dp),
             contentAlignment = Alignment.Center

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -21,8 +22,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.rememory.ui.navigation.BottomNavItem
 import com.example.rememory.ui.screens.myPage.components.MyInfoCard
 
 @Composable
@@ -42,8 +46,10 @@ fun MyPageScreen(
         }
     ){ innerPadding ->
         Column (
-            modifier = Modifier.padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ){
             MyInfoCard(
                 myInfo = uiState.myInfo,
@@ -51,7 +57,16 @@ fun MyPageScreen(
             )
             SettingBox(
                 "Managing friends",
-                {/*친구 페이지로 이동*/}
+                {
+                    navController.navigate(BottomNavItem.Friends.route) {
+                        //옵션 이용해서 이전 스택 제거하고 깔끔하게 이동
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true // 이전 탭의 상태 저장
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
             SettingBox(
                 "Managing groups",
@@ -76,19 +91,13 @@ fun SettingBox(
 ){
     val buttonAlpha = if ( isLogout == true) 0.5f else 1.0f
 
-    val horizontalPadding = 20.dp // 일반적인 좌우 패딩을 유지하거나, 0.dp로 설정
-    val customContentPadding = PaddingValues(horizontal = horizontalPadding)
-
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .alpha(buttonAlpha),
-
-        // 버튼의 기본 내부 패딩을 재정의하여 콘텐츠를 왼쪽 끝으로 밀기 쉽게 만듭니다.
-        contentPadding = customContentPadding,
-
-        // 버튼 색상은 White 또는 Transparent를 사용하여 배경색을 드러나게 할 수 있습니다.
+        shape = RoundedCornerShape(8.dp),
+        contentPadding = PaddingValues(horizontal = 25.dp, vertical = 8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White,
             contentColor = Color.Black // 텍스트 색상

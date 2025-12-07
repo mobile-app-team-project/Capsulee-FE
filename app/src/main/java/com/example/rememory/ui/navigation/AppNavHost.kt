@@ -14,6 +14,7 @@ import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
 import com.example.rememory.ui.screens.friends.FriendManagingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingViewModel
 import com.example.rememory.ui.screens.myPage.MyPageScreen
+import com.example.rememory.ui.screens.myPage.MyPageViewModel
 
 @Composable
 fun AppNavHost(
@@ -54,7 +55,11 @@ fun AppNavHost(
                 )
             }
             composable(BottomNavItem.MyPage.route) {
-                MyPageScreen(navController = navController)
+                val viewModel: MyPageViewModel = hiltViewModel()
+                MyPageScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
         }
     }
