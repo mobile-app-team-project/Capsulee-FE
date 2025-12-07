@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalTime
 
 class CreateCapsuleViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -47,5 +49,20 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
             }
         }
         _imageFile.value = file // 파일 상태 업데이트
+    }
+
+    // Step2
+    private val _selectedDate = MutableStateFlow(LocalDate.now())
+    val selectedDate: StateFlow<LocalDate> = _selectedDate
+
+    private val _selectedTime = MutableStateFlow<LocalTime?>(null)
+    val selectedTime: StateFlow<LocalTime?> = _selectedTime
+
+    fun onDateSelected(date: LocalDate) {
+        _selectedDate.value = date
+    }
+
+    fun onTimeSelected(time: LocalTime?) {
+        _selectedTime.value = time
     }
 }
