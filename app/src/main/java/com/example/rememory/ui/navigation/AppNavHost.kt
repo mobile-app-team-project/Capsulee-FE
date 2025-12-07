@@ -10,10 +10,9 @@ import androidx.navigation.compose.composable
 import androidx.compose.material3.Scaffold
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rememory.ui.components.BottomNavigationBar
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rememory.ui.screens.auth.LoginScreen
 import com.example.rememory.ui.screens.auth.SignUpScreen
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
@@ -51,7 +50,7 @@ fun AppNavHost(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavItem.Onboarding.route,
+            startDestination = Screen.Onboarding.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             // --- 하단 바가 보이는 화면들 ---
@@ -59,13 +58,13 @@ fun AppNavHost(
                 val viewModel: CapsuleListViewModel = hiltViewModel()
 
                 CapsuleListScreen(
-                    navController = mainNavController,
+                    navController = navController,
                     viewModel = viewModel
                 )
             }
 
             composable(BottomNavItem.Home.route) {
-                HomeScreen(navController = mainNavController)
+                HomeScreen(navController = navController)
             }
             composable(BottomNavItem.Friends.route) {
                 val viewModel: FriendManagingViewModel = hiltViewModel()
@@ -74,7 +73,7 @@ fun AppNavHost(
                 )
             }
             composable(BottomNavItem.MyPage.route) {
-                MyPageScreen(navController = mainNavController)
+                MyPageScreen(navController = navController)
             }
 
             // --- 하단 바가 보이지 않는 화면 ---
@@ -85,6 +84,14 @@ fun AppNavHost(
 
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(navController = navController)
+            }
+
+            composable("signup") {
+                SignUpScreen(navController = navController) // 실제 구현된 Composable로 연결
+            }
+
+            composable("login") {
+                LoginScreen(navController = navController) // 실제 구현된 Composable로 연결
             }
         }
     }
