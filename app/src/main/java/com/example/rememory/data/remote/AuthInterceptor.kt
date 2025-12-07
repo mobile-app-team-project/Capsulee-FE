@@ -25,6 +25,6 @@ class AuthInterceptor : Interceptor {
     // 🚨 TODO: 실제 토큰을 가져오는 함수로 대체해야 합니다.
     private fun getCurrentUserToken(): String {
         // 예시: 실제로는 SharedPreferences나 DataStore에서 가져와야 함
-        return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NjUxMTM3MTksImV4cCI6MTc2NTExNzMxOSwibG9naW5JRCI6ImJiIn0.BQ8KVI_NW9aKxis5S_0FBO4CQ9X1hLcgh_HrB4q6Z84"
+        return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NjUxMjA4NjgsImV4cCI6MTc2NTEyNDQ2OCwibG9naW5JRCI6ImJiIn0.VpjyginJtn0O73id7cjwt3x4CBf7Pid82O9WeIaox8g"
     }
 }

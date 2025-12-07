@@ -1,9 +1,6 @@
 package com.example.rememory.ui.screens.myPage
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -22,11 +19,11 @@ fun MyPageScreen(
     val myPageNavController = rememberNavController()
 
 
-        NavHost(
-            navController = myPageNavController, 
-            startDestination = AppDestinations.MY_PAGE_HOME_ROUTE,
-            //modifier = Modifier.padding(innerPadding)
-        ) {
+    NavHost(
+        navController = myPageNavController,
+        startDestination = AppDestinations.MY_PAGE_HOME_ROUTE,
+        )
+    {
             // A. 내 정보 카드 화면 (기본 화면)
             composable(AppDestinations.MY_PAGE_HOME_ROUTE) {
                 MyPageHomeContent(

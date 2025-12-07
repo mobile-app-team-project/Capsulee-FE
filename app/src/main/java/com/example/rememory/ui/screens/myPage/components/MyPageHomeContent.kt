@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,23 +20,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.rememory.ui.components.AppHeader
+import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.screens.myPage.MyPageViewModel
 
-/*
-*  SettingBox(
-                "Managing friends",
-                {
-                    navController.navigate(BottomNavItem.Friends.route) {
-                        //옵션 이용해서 이전 스택 제거하고 깔끔하게 이동
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true // 이전 탭의 상태 저장
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
-* */
 
 @Composable
 fun MyPageHomeContent(
@@ -44,27 +32,42 @@ fun MyPageHomeContent(
     onFriendNavigate: () -> Unit
 ) {
     val uiState by viewModel.state.collectAsState()
+    Scaffold (
+        topBar = {
+            AppHeader(
+                title = "Re:Memory",
+                titleStyle = TitleLogoStyle,
+                onPlusClick = {},
+            )
+        }
+    ){innerPadding ->
+        Column(
+            Modifier
+                .padding(innerPadding)
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            MyInfoCard(
+                myInfo = uiState.myInfo,
+                onEditClick = onEditNavigate
+            )
+            SettingBox(
+                "Managing friends",
+                onFriendNavigate
+            )
+            SettingBox(
+                "Managing groups",
+                {}
+            )
+            SettingBox(
+                "Log out",
+                {/*토큰 제거 로직*/},
+                isLogout = true
+            )
 
-    Column(Modifier.fillMaxSize()) {
-        MyInfoCard(
-            myInfo = uiState.myInfo,
-            onEditClick = onEditNavigate //  콜백 함수를 연결
-        )
-        SettingBox(
-            "Managing friends",
-            onFriendNavigate
-        )
-        SettingBox(
-            "Managing groups",
-            {}
-        )
-        SettingBox(
-            "Log out",
-            {/*토큰 제거 로직*/},
-            isLogout = true
-        )
-
+        }
     }
+
 }
 
 

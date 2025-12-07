@@ -14,7 +14,9 @@ import javax.inject.Inject
 data class MyPageState(
     val myInfo: MyInfoDomainModel? = null,
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val editingNickname: String = "",
+    val editingLoginId: String = ""
 )
 
 @HiltViewModel
@@ -29,7 +31,7 @@ class MyPageViewModel @Inject constructor(
         loadMyInfo()
     }
 
-    private fun loadMyInfo() {
+    fun loadMyInfo() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             try {
@@ -37,7 +39,9 @@ class MyPageViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         myInfo = info,
-                        isLoading = false
+                        isLoading = false,
+                        editingNickname = info.nickname,
+                        editingLoginId = info.loginId
                     )
                 }
             } catch (e: Exception) {
@@ -51,5 +55,33 @@ class MyPageViewModel @Inject constructor(
         }
     }
 
-    // TODO: 프로필 수정, 로그아웃 등 다른 기능 추가 예정
+    fun onNicknameChange(newNickname: String) {
+        _state.update { it.copy(editingNickname = newNickname) }
+    }
+
+    fun onLoginIdChange(newLoginId: String) {
+        _state.update { it.copy(editingLoginId = newLoginId) }
+    }
+
+    fun saveMyInfo(onSuccess: () -> Unit) {
+        val nickname = _state.value.editingNickname
+        val loginId = _state.value.editingLoginId
+
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                // 1. 정보 업데이트 (PUT /users/me)
+                userRepository.updateMyInfo(nickname, loginId)
+                loadMyInfo()
+                onSuccess()
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "정보 수정 실패: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
 }
