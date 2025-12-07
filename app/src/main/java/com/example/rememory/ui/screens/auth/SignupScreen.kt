@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -23,24 +24,36 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.rememory.R
 import com.example.rememory.ui.components.AppTextField
 import com.example.rememory.ui.components.PrimaryButton
 import com.example.rememory.ui.components.SimpleHeader
+import com.example.rememory.ui.navigation.Screen
 import com.example.rememory.ui.theme.*
 
 @Composable
 fun SignUpScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     var username by remember { mutableStateOf("") }
     var userId by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.SignUp.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -178,12 +191,21 @@ fun SignUpScreen(
                 defaultBorderColor = PurplePrimary
             )
 
+            uiState.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             PrimaryButton(
                 text = "SIGN UP",
                 onClick = {
-                    // TODO: 회원가입 로직
+                    viewModel.signUp(username, userId, password, confirmPassword)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

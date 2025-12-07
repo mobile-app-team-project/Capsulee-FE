@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -24,22 +25,34 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.rememory.R
 import com.example.rememory.ui.components.AppTextField
 import com.example.rememory.ui.components.PrimaryButton
 import com.example.rememory.ui.components.SimpleHeader
+import com.example.rememory.ui.navigation.Screen
 import com.example.rememory.ui.theme.*
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     var userId by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Onboarding.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -147,14 +160,21 @@ fun LoginScreen(
                 defaultBorderColor = PurplePrimary
             )
 
+            uiState.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             PrimaryButton(
                 text = "LOG IN",
                 onClick = {
-                    navController.navigate("home") {
-                        popUpTo("onboarding") { inclusive = true }
-                    }
+                    viewModel.login(userId, password)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

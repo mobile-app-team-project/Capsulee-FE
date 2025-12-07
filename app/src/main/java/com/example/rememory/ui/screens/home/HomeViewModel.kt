@@ -6,11 +6,13 @@ import com.example.rememory.data.repository.HomeRepositoryImpl
 import com.example.rememory.domain.model.HomeScreenData
 import com.example.rememory.domain.repository.HomeRepository
 import com.example.rememory.util.TimeUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class HomeUiState(
     val homeData: HomeScreenData? = null,
@@ -20,8 +22,11 @@ data class HomeUiState(
     val isLoading: Boolean = true
 )
 
-class HomeViewModel : ViewModel() {
-    private val repository: HomeRepository = HomeRepositoryImpl()
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val repository: HomeRepository
+) : ViewModel() {
+//    private val repository: HomeRepository = HomeRepositoryImpl()
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -33,7 +34,7 @@ import com.example.rememory.ui.theme.*
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -116,7 +117,7 @@ fun HomeScreen(
                                 text = "${uiState.remainingTime}:${String.format("%02d", uiState.remainingSeconds)}",
                                 fontSize = 28.sp,
                                 fontFamily = MontserratFontFamily,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                         }
@@ -147,50 +148,10 @@ fun HomeScreen(
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360, heightDp = 800)
-//@Composable
-//fun HomeScreenPreview() {
-//    ReMemoryTheme {
-//        HomeScreen(navController = rememberNavController())
-//    }
-//}
-
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
-fun HomeScreenQuickPreview() {
+fun HomeScreenPreview() {
     ReMemoryTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(BackgroundLight)
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(100.dp))
-
-            // 타이틀만 미리보기
-            Text(
-                text = "Very Long Graduation Celebration Party Title That Should Wrap To Next Line",
-                fontSize = 28.sp,
-                fontFamily = MontserratFontFamily,
-                fontWeight = FontWeight.Bold,
-                color = PurplePrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 36.dp),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                lineHeight = 30.sp
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_capsulee_main),
-                contentDescription = "Capsule",
-                modifier = Modifier.size(280.dp)
-            )
-        }
+        HomeScreen(navController = rememberNavController())
     }
 }
