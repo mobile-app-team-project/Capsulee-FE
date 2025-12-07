@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- res/values/styles.xml -->
+    <style name="PurpleCalendar" parent="@android:style/Widget.Material.Light.CalendarView">
+        <item name="android:background">#FFFFFF</item> <!-- 흰색 배경 -->
+        <item name="android:weekDayTextAppearance">@style/WeekDayText</item>
+        <item name="android:dateTextAppearance">@style/DateText</item>
+        <item name="android:selectedDateVerticalBar">@color/purple_500</item>
+    </style>
+
+    <style name="WeekDayText" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="DateText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#6B7280</item>
+    </style>
+</resources>
+
