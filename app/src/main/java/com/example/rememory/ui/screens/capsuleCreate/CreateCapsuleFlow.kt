@@ -7,18 +7,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
-import java.io.File
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
@@ -117,6 +115,11 @@ fun CreateCapsuleFlow(
     val totalSteps = 3 + orderedConditionSteps.size + 2
     // 1: 기본정보, 2: 날짜, 3: 조건선택, 4~n: 조건 상세, n+1: 수신자 선택, n+2: 확인 및 최종 제출
 
+    val currentCondition: ConditionType? =
+        if (step in 4 until 4 + orderedConditionSteps.size)
+            orderedConditionSteps[step - 4]
+        else null
+
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
         subtitle = getStepSubtitle(step, orderedConditionSteps),
@@ -138,6 +141,7 @@ fun CreateCapsuleFlow(
                 navController.popBackStack() // step == 1일 때 뒤로 가기
             }
         },
+        showBottomBar = currentCondition != ConditionType.LOCATION,
         onNext = { step = goToNextStep(step, orderedConditionSteps) }
     ) {
 
@@ -164,15 +168,27 @@ fun CreateCapsuleFlow(
                 onToggle = { condition -> viewModel.toggleCondition(condition) }
             )
 
-//            in 4 until 4 + orderedConditionSteps.size -> {
-//                val currentCondition = orderedConditionSteps[step - 4]
-//
-//                when (currentCondition) {
-//                    ConditionType.LOCATION -> StepLocationInput()
-//                    ConditionType.WEATHER -> StepWeatherInput()
-//                    ConditionType.ACTION -> StepActionInput()
-//                }
-//            }
+            in 4 until 4 + orderedConditionSteps.size -> {
+                val currentCondition = orderedConditionSteps[step - 4]
+
+                when (currentCondition) {
+                    ConditionType.LOCATION -> LocationScreen(
+                        onNextClicked = { step = goToNextStep(step, orderedConditionSteps) },
+                        onPreviousClicked = { step-- },
+                        onUseCurrentLocation = { latLng ->
+                            // 지도 위치 이동 처리에만 사용됨
+                        },
+                        onLocationSelected = { selectedLocation ->
+                            viewModel.setSelectedLocation(selectedLocation)
+                        }
+                    )
+
+                    else -> {
+                        // 아직 구현 안된 WEATHER, ACTION 등의 조건이 여기로 들어옴
+                        // 임시로 비워둠 (또는 Log 출력해도 OK)
+                    }
+                }
+            }
 //
 //            // 수신자 선택 단계
 //            4 + orderedConditionSteps.size -> StepRecipientSelection()
