@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
+import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
 import java.io.File
 
 // 다음 단계 버튼 활성화 조건
@@ -28,7 +29,6 @@ fun isNextEnabled(
 ): Boolean {
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
-        3 -> selectedConditions.isNotEmpty()
         else -> true
     }
 }
@@ -159,16 +159,16 @@ fun CreateCapsuleFlow(
                 onTimeChange = { viewModel.onTimeSelected(it) }
             )
 
-//
-//            3 -> Step3SelectConditions(
-//                selectedConditions = selectedConditions,
-//                onToggle = { condition ->
-//                    if (selectedConditions.contains(condition))
-//                        selectedConditions.remove(condition)
-//                    else
-//                        selectedConditions.add(condition)
-//                }
-//            )
+
+            3 -> Step3SelectConditions(
+                selectedConditions = selectedConditions,
+                onToggle = { condition ->
+                    if (selectedConditions.contains(condition))
+                        selectedConditions.remove(condition)
+                    else
+                        selectedConditions.add(condition)
+                }
+            )
 //
 //            in 4 until 4 + orderedConditionSteps.size -> {
 //                val currentCondition = orderedConditionSteps[step - 4]
@@ -192,33 +192,4 @@ fun CreateCapsuleFlow(
 //            )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CreateCapsuleFlowPreview() {
-    val dummyTitle = "Graduation Day"
-    val dummyMessage = "We finally did it!"
-    val dummyImageFile: File? = null
-
-    CreateCapsuleScreen(
-        title = "Create Your Memory",
-        subtitle = "Tell us about your memory",
-        progress = 0.1f,
-        showPrevious = false,
-        nextText = "NEXT",
-        onNext = {},
-        rightEnabled = true,
-        isSingleButton = false,
-        content = {
-            Step1BasicInfo(
-                title = dummyTitle,
-                message = dummyMessage,
-                imageFile = dummyImageFile,
-                onTitleChange = {},
-                onMessageChange = {},
-                onImageSelected = {} // 여기에 imagePickerLauncher는 프리뷰에서 필요 없음
-            )
-        }
-    )
 }
