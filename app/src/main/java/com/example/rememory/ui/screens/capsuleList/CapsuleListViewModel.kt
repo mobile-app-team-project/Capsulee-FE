@@ -8,11 +8,13 @@ import com.example.rememory.data.remote.mock.CapsuleMockData
 import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.domain.model.CapsuleDomainModel
 import com.example.rememory.domain.model.CapsuleStatsDomainModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // ----------------------------------------------------
 // 1. UI 상태 정의 (CapsuleListScreen이 관찰할 데이터)
@@ -27,13 +29,13 @@ data class CapsuleListState(
 )
 
 // ----------------------------------------------------
-// 2. ViewModel 구현
+// ViewModel
 // ----------------------------------------------------
 
-class CapsuleListViewModel() : ViewModel() {
-    private val capsuleRepository: CapsuleRepository = CapsuleRepositoryImpl(
-        apiService = MockCapsuleService()
-    )
+@HiltViewModel
+class CapsuleListViewModel @Inject constructor(
+    private  val capsuleRepository: CapsuleRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(CapsuleListState())
     val state: StateFlow<CapsuleListState> = _state

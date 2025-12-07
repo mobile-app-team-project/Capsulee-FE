@@ -12,6 +12,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,14 @@ fun FriendManagingScreen(
     // 1. 목록 개수 계산
     val listnum = uiState.friendList.size
     val requestnum = uiState.requestList.size
+
+    //  화면 이탈 시 검색 상태 초기화
+    DisposableEffect(key1 = Unit) {
+        onDispose{
+            // 이 화면(Screen) 컴포저블이 화면에서 제거(Dispose)될 때 호출됩니다.
+            viewModel.resetSearchState()
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -71,6 +80,7 @@ fun FriendManagingScreen(
                 rightText = "request ($requestnum)",
                 isLeftSelected = uiState.isListSelected,
             ) { isListSelected ->
+                viewModel.resetSearchState()
                 viewModel.onTabToggle(isListSelected)
             }
 
