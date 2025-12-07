@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import java.io.File
 
 // 다음 단계 버튼 활성화 조건
@@ -36,7 +37,7 @@ fun isNextEnabled(
 fun getStepTitle(step: Int, conditionOrder: List<ConditionType>): String =
     when (step) {
         1 -> "Create Your Memory"
-        2 -> "Choose Opening Time"
+        2 -> "When will this Memory Unlock?"
         3 -> "Choose Your Special Keys"
         in 4 until 4 + conditionOrder.size -> when (conditionOrder[step - 4]) {
             ConditionType.LOCATION -> "Tie this Memory to a Place"
@@ -52,7 +53,7 @@ fun getStepTitle(step: Int, conditionOrder: List<ConditionType>): String =
 fun getStepSubtitle(step: Int, conditionOrder: List<ConditionType>): String =
     when (step) {
         1 -> "Tell us about your memory"
-        2 -> "Set when this capsule will open"
+        2 -> "Select the exact moment this capsule will open"
         3 -> "Mix and match to create a unique key"
         in 4 until 4 + conditionOrder.size -> when (conditionOrder[step - 4]) {
             ConditionType.LOCATION -> "Search for a place or pin a location on the map"
@@ -112,6 +113,10 @@ fun CreateCapsuleFlow(
         }
     }
 
+    // Step 2 상태
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val selectedTime by viewModel.selectedTime.collectAsState()
+
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
         subtitle = getStepSubtitle(step, orderedConditionSteps),
@@ -146,8 +151,14 @@ fun CreateCapsuleFlow(
                 onMessageChange = { newMessage -> viewModel.onMessageChange(newMessage) },
                 onImageSelected = { imagePickerLauncher.launch("image/*") }
             )
-//
-//            2 -> Step2ChooseDate()
+
+            2 -> Step2UnlockTime(
+                selectedDate = selectedDate,
+                selectedTime = selectedTime,
+                onDateChange = { viewModel.onDateSelected(it) },
+                onTimeChange = { viewModel.onTimeSelected(it) }
+            )
+
 //
 //            3 -> Step3SelectConditions(
 //                selectedConditions = selectedConditions,
