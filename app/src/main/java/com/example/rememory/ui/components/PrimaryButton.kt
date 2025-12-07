@@ -1,5 +1,6 @@
 package com.example.rememory.ui.components
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ fun PrimaryButton(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding
 ) {
     Button(
         onClick = onClick,
@@ -39,6 +41,7 @@ fun PrimaryButton(
             containerColor = PurplePrimary,
             contentColor = Color.White
         ),
+        contentPadding = contentPadding
     ) {
         Text(
             text = text,

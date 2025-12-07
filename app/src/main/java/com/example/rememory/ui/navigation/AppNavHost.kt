@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.compose.material3.Scaffold // Scaffold import
 import com.example.rememory.ui.components.BottomNavigationBar
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
+import com.example.rememory.ui.screens.friends.FriendManagingScreen
 
 @Composable
 fun AppNavHost(
@@ -44,7 +45,7 @@ fun AppNavHost(
                 // HomeScreen(navController = navController)
             }
             composable(BottomNavItem.Friends.route) {
-                // FriendsScreen(navController = navController)
+                FriendManagingScreen()
             }
             composable(BottomNavItem.MyPage.route) {
                 // MyPageScreen(navController = navController)
