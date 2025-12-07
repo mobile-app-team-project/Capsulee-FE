@@ -115,10 +115,10 @@ private fun FriendListContent(uiState: FriendManagingState, viewModel: FriendMan
         // 데이터 로드 완료 시 (선택된 탭에 따른 목록 표시)
         val isFriendList = uiState.isListSelected
         val currentList = if (uiState.isListSelected) uiState.friendList else uiState.requestList
-        val listTitle = if (uiState.isListSelected) "친구 목록" else "친구 요청"
+        val listTitle = if (uiState.isListSelected) "Friend list" else "Friend request"
 
         if (currentList.isEmpty()) {
-            Text("${listTitle}이 비어있습니다.", color = Color.Gray)
+            Text(" $listTitle is empty", color = Color.Gray)
         } else {
             LazyColumn (
                 modifier = Modifier.fillMaxWidth(),
@@ -157,10 +157,10 @@ private fun SearchContent(uiState: FriendManagingState, viewModel: FriendManagin
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CircularProgressIndicator()
-            Text("사용자 검색 중...")
+            Text("searching...")
         }
     } else if (uiState.searchResults.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-        Text("검색 결과가 없습니다.", color = Color.Gray)
+        Text("There are no results", color = Color.Gray)
     } else {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -170,7 +170,6 @@ private fun SearchContent(uiState: FriendManagingState, viewModel: FriendManagin
                 SearchCard(
                     userInfo = user,
                     callbacks = SearchActionCallbacks(
-                        // 🎯 콜백 연결: 요청 버튼 클릭 시 ViewModel 함수 호출
                         onRequestFriend = {
                             // 요청 대상의 Login ID를 전달해야 하므로, user.loginId를 사용합니다.
                             viewModel.requestFriend(user.userLoginId)
