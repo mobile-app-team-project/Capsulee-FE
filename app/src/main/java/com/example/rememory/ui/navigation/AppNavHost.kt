@@ -9,13 +9,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.material3.Scaffold
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rememory.ui.components.BottomNavigationBar
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.rememory.ui.screens.auth.LoginScreen
+import com.example.rememory.ui.screens.auth.SignUpScreen
 import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
+import com.example.rememory.ui.screens.onboarding.OnboardingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingViewModel
+import com.example.rememory.ui.screens.home.HomeScreen
 import com.example.rememory.ui.screens.myPage.MyPageScreen
 
 @Composable
@@ -46,7 +50,7 @@ fun AppNavHost(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavItem.Capsule.route,
+            startDestination = Screen.Onboarding.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             // --- 하단 바가 보이는 화면들 ---
@@ -58,8 +62,9 @@ fun AppNavHost(
                     viewModel = viewModel
                 )
             }
+
             composable(BottomNavItem.Home.route) {
-                // HomeScreen(navController = navController)
+                HomeScreen(navController = navController)
             }
             composable(BottomNavItem.Friends.route) {
                 val viewModel: FriendManagingViewModel = hiltViewModel()
@@ -77,10 +82,17 @@ fun AppNavHost(
                 CreateCapsuleFlow(navController = navController)
             }
 
-            // 다른 독립적인 화면이 있다면 여기에 추가
-            // composable(Screen.Onboarding.route) {
-            //     OnboardingScreen(navController = navController)
-            // }
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(navController = navController)
+            }
+
+            composable("signup") {
+                SignUpScreen(navController = navController) // 실제 구현된 Composable로 연결
+            }
+
+            composable("login") {
+                LoginScreen(navController = navController) // 실제 구현된 Composable로 연결
+            }
         }
     }
 }

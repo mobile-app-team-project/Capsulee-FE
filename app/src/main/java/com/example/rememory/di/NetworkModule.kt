@@ -1,15 +1,21 @@
 package com.example.rememory.di
 
 
+import com.example.rememory.data.local.TokenManager
 import com.example.rememory.data.remote.AuthInterceptor
+import com.example.rememory.data.remote.api.AuthService
 import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.api.FriendService
 import com.example.rememory.data.remote.api.UserService
+import com.example.rememory.data.repository.AuthRepositoryImpl
 import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.data.repository.FriendRepositoryImpl
+import com.example.rememory.data.repository.HomeRepositoryImpl
 import com.example.rememory.data.repository.UserRepositoryImpl
+import com.example.rememory.domain.repository.AuthRepository
 import com.example.rememory.domain.repository.CapsuleRepository
 import com.example.rememory.domain.repository.FriendRepository
+import com.example.rememory.domain.repository.HomeRepository
 import com.example.rememory.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -31,8 +37,8 @@ object NetworkModule {
     // 0. AuthInterceptor 인스턴스 제공
     @Provides
     @Singleton
-    fun provideAuthInterceptor(): AuthInterceptor {
-        return AuthInterceptor()
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor {
+        return AuthInterceptor(tokenManager)
     }
 
     // HttpLoggingInterceptor 인스턴스 제공
@@ -110,5 +116,23 @@ object NetworkModule {
     fun provideCapsuleRepository(service: CapsuleService): CapsuleRepository {
         //  CapsuleRepositoryImpl 생성자가 CapsuleService를 인자로 받는다고 가정
         return CapsuleRepositoryImpl(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthService(retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(service: AuthService): AuthRepository {
+        return AuthRepositoryImpl(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeRepository(): HomeRepository {
+        return HomeRepositoryImpl()
     }
 }
