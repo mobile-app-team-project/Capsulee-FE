@@ -152,7 +152,9 @@ fun LoginScreen(
             PrimaryButton(
                 text = "LOG IN",
                 onClick = {
-                    // TODO: 로그인 로직
+                    navController.navigate("home") {
+                        popUpTo("onboarding") { inclusive = true }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

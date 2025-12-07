@@ -17,6 +17,7 @@ import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
 import com.example.rememory.ui.screens.onboarding.OnboardingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingViewModel
+import com.example.rememory.ui.screens.home.HomeScreen
 import com.example.rememory.ui.screens.myPage.MyPageScreen
 
 @Composable
@@ -60,7 +61,7 @@ private fun MainScaffold(navController: NavHostController) {
     ) { innerPadding ->
         NavHost(
             navController = mainNavController,
-            startDestination = BottomNavItem.Capsule.route,
+            startDestination = BottomNavItem.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Capsule.route) {
@@ -73,7 +74,7 @@ private fun MainScaffold(navController: NavHostController) {
             }
 
             composable(BottomNavItem.Home.route) {
-                // HomeScreen(navController = mainNavController)
+                HomeScreen(navController = mainNavController)
             }
             composable(BottomNavItem.Friends.route) {
                 val viewModel: FriendManagingViewModel = hiltViewModel()
