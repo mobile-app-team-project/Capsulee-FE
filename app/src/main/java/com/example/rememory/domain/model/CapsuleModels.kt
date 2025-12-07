@@ -37,7 +37,8 @@ data class CapsuleStatsDomainModel(
 )
 
 enum class ConditionType {
+    LOCATION,
+    WEATHER,
+    ACTION, // 서버에서 정의되지 않은 타입 처리
     TIME,
-    GEO,
-    ACTION // 서버에서 정의되지 않은 타입 처리
 }
