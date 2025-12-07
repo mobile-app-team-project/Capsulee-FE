@@ -2,6 +2,7 @@ package com.example.rememory.ui.screens.myPage.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,21 +13,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.rememory.R // 🚨 리소스 ID는 프로젝트에 맞게 수정 필요
+import com.example.rememory.R
 import com.example.rememory.domain.model.MyInfoDomainModel
+import com.example.rememory.ui.theme.GrayBorder
 import com.example.rememory.ui.theme.GrayText
 import com.example.rememory.ui.theme.PurplePrimary // (예시 색상)
 import com.example.rememory.ui.theme.PurpleLight // (예시 색상: #E6E0F8 톤)
 
 @Composable
 fun MyInfoCard(
-    myInfo: MyInfoDomainModel,
+    myInfo: MyInfoDomainModel?,
     onEditClick: () -> Unit
 ) {
     Card(
@@ -35,7 +40,7 @@ fun MyInfoCard(
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // 1. 프로필 정보 (닉네임, ID, 수정 버튼)
@@ -47,14 +52,16 @@ fun MyInfoCard(
                 // 아바타
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
-                        .background(Color.Transparent, CircleShape)
-                    // 🚨 TODO: 실제 아바타 이미지로 대체 필요
+                        .size(70.dp)
+                        .clip(CircleShape)
+                        .border(width = 1.dp, color = GrayBorder, shape = CircleShape)
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_capsulee_main), // 임시 이미지
                         contentDescription = "My Avatar",
-                        modifier = Modifier.size(60.dp)
+                        modifier = Modifier.size(45.dp)
                     )
                 }
 
@@ -63,14 +70,13 @@ fun MyInfoCard(
                 // 닉네임 & ID
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = myInfo.nickname,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = myInfo?.nickname ?: "",
+                        fontSize = 15.sp,
                         color = Color.Black
                     )
                     Text(
-                        text = "@${myInfo.loginId}",
-                        fontSize = 16.sp,
+                        text = "@${myInfo?.loginId}",
+                        fontSize = 13.sp,
                         color = GrayText
                     )
                 }
@@ -78,10 +84,14 @@ fun MyInfoCard(
                 // 수정 버튼
                 Text(
                     text = "edit",
-                    fontSize = 15.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = PurplePrimary,
-                    modifier = Modifier.clickable(onClick = onEditClick)
+                    style = TextStyle(
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .clickable(onClick = onEditClick)
                 )
             }
 
@@ -94,15 +104,15 @@ fun MyInfoCard(
             ) {
                 StatItem(
                     title = "total joined",
-                    count = myInfo.totalCapsules
+                    count = myInfo?.totalCapsules ?: 0
                 )
                 StatItem(
                     title = "unlocked",
-                    count = myInfo.openedCapsules
+                    count = myInfo?.openedCapsules ?: 0
                 )
                 StatItem(
                     title = "friends",
-                    count = myInfo.totalFriends
+                    count = myInfo?.totalFriends ?: 0
                 )
             }
         }
@@ -120,7 +130,8 @@ private fun RowScope.StatItem(title: String, count: Int) {
         Text(
             text = title,
             fontSize = 14.sp,
-            color = GrayText
+            color = GrayText,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -128,8 +139,8 @@ private fun RowScope.StatItem(title: String, count: Int) {
         Box(
             modifier = Modifier
                 .width(IntrinsicSize.Max)
-                .background(PurpleLight.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                .padding(vertical = 12.dp, horizontal = 16.dp),
+                .background(PurpleLight.copy(alpha = 0.5f), RoundedCornerShape(15.dp))
+                .padding(vertical = 14.dp, horizontal = 20.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
