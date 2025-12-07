@@ -60,6 +60,7 @@ android {
         compose = true
         buildConfig = true // BuildConfig 사용 활성화
     }
+
 }
 
 dependencies {
@@ -74,6 +75,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation("androidx.navigation:navigation-compose:2.9.6")
 
+    // [수정] Places 라이브러리 (중복 제거 후 버전 명시)
+    implementation("com.google.android.libraries.places:places:3.3.0")
+
     // 테스트 관련
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -83,8 +87,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // [4] Room 라이브러리 (오류 수정 핵심)
-    // 기존의 잘못된 'libs.androidx.room.compiler' 삭제하고 아래 3개로 교체
+    // Room 라이브러리
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
@@ -99,15 +102,18 @@ dependencies {
     // Coil (이미지 로딩)
     implementation("io.coil-kt:coil-compose:2.4.0")
 
-    // [5] Hilt (의존성 주입) - 버전 2.55로 통일 (Metadata 오류 해결)
+    // Hilt (의존성 주입)
     implementation("com.google.dagger:hilt-android:2.55")
     kapt("com.google.dagger:hilt-compiler:2.55")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    // ViewModel용 Hilt 컴파일러
+
+    // ViewModel용 컴파일러 추가
     kapt("androidx.hilt:hilt-compiler:1.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
 
-    // [6] 구글 맵 (Compose 전용 포함)
+    // 구글 맵
     implementation("com.google.android.gms:play-services-maps:18.2.0")
-    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.maps.android:maps-compose:4.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 }
