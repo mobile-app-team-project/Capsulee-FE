@@ -73,8 +73,8 @@ private fun CapsuleItemDto.toDomainModel(): CapsuleDomainModel {
 private fun ConditionInfoDto.toDomainModel(): ConditionDomainModel {
     return ConditionDomainModel(
         type = when (this.type.uppercase()) {
+            "LOCATION" -> ConditionType.LOCATION
             "TIME" -> ConditionType.TIME
-            "GEO" -> ConditionType.GEO
             else -> ConditionType.ACTION
         },
         value = this.value
