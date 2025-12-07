@@ -49,7 +49,9 @@ fun HomeScreen(
             title = "Re:Memory",
             titleStyle = TitleLogoStyle,
             onBackClick = null,
-            onPlusClick = null,
+            onPlusClick = {
+                navController.navigate("capsule_create")
+            },
             onBellClick = {
                 // TODO: 알림 화면으로 이동
             }
@@ -128,7 +130,7 @@ fun HomeScreen(
                     PrimaryButton(
                         text = "Create Capsule",
                         onClick = {
-                            viewModel.onCreateCapsuleClick()
+                            navController.navigate("capsule_create")
                         },
                         modifier = Modifier
                             .width(260.dp)
