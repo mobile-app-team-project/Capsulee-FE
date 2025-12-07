@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.model.SelectedLocation
+import com.example.rememory.domain.model.WeatherCondition
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -94,13 +95,13 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
         _selectedLocation.value = location
     }
 
-//    // 날씨 조건
-//    private val _selectedWeather = MutableStateFlow<String?>(null)
-//    val selectedWeather: StateFlow<String?> = _selectedWeather.asStateFlow()
-//
-//    fun setWeather(weather: String) {
-//        _selectedWeather.value = weather
-//    }
+    // 날씨 조건
+    private val _selectedWeather = MutableStateFlow<WeatherCondition?>(null)
+    val selectedWeather: StateFlow<WeatherCondition?> = _selectedWeather
+
+    fun setSelectedWeather(condition: WeatherCondition?) {
+        _selectedWeather.value = condition
+    }
 //
 //    // 행동 조건
 //    private val _selectedAction = MutableStateFlow<String?>(null)

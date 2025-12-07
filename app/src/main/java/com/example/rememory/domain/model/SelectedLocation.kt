@@ -6,4 +6,3 @@ data class SelectedLocation (
     val lat: Double,
     val long: Double
 )
-

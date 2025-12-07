@@ -14,19 +14,25 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.domain.model.WeatherCondition
 import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
+import com.example.rememory.ui.screens.capsuleCreate.components.WeatherScreen
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
     step: Int,
     capsuleTitle: String,
     capsuleMessage: String,
-    selectedConditions: List<ConditionType>
+    selectedConditions: List<ConditionType>,
+    selectedWeather: WeatherCondition? = null,
 ): Boolean {
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
+        in 4..10 -> {
+            selectedConditions.contains(ConditionType.WEATHER).not() || selectedWeather != null
+        }
         else -> true
     }
 }
@@ -181,6 +187,11 @@ fun CreateCapsuleFlow(
                         onLocationSelected = { selectedLocation ->
                             viewModel.setSelectedLocation(selectedLocation)
                         }
+                    )
+
+                    ConditionType.WEATHER -> WeatherScreen(
+                        selectedWeather = viewModel.selectedWeather.collectAsState().value,
+                        onWeatherSelected = { viewModel.setSelectedWeather(it) }
                     )
 
                     else -> {
