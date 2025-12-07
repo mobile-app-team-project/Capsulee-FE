@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.screens.myPage.MyPageViewModel
@@ -27,6 +28,7 @@ import com.example.rememory.ui.screens.myPage.MyPageViewModel
 
 @Composable
 fun MyPageHomeContent(
+    mainNavController: NavHostController,
     viewModel: MyPageViewModel,
     onEditNavigate: () -> Unit, // 수정 화면 이동 콜백
     onFriendNavigate: () -> Unit
@@ -61,7 +63,15 @@ fun MyPageHomeContent(
             )
             SettingBox(
                 "Log out",
-                {/*토큰 제거 로직*/},
+                {
+                    viewModel.logout {
+                        mainNavController.navigate("onboarding") {
+                            popUpTo(mainNavController.graph.id) {
+                                inclusive = true // 모든 스택을 포함하여 제거
+                            }
+                        }
+                    }
+                },
                 isLogout = true
             )
 

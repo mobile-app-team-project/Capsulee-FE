@@ -2,8 +2,8 @@ package com.example.rememory.ui.screens.myPage
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.example.rememory.ui.navigation.AppDestinations
@@ -13,7 +13,7 @@ import com.example.rememory.ui.navigation.BottomNavItem
 
 @Composable
 fun MyPageScreen(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: MyPageViewModel = viewModel()
 ){
     val myPageNavController = rememberNavController()
@@ -40,7 +40,8 @@ fun MyPageScreen(
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
+                    mainNavController = navController
                 )
             }
 

@@ -106,8 +106,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(service: UserService): UserRepository {
-        return UserRepositoryImpl(service)
+    fun provideUserRepository(service: UserService, tokenManager: TokenManager): UserRepository {
+        return UserRepositoryImpl(
+            service,
+            tokenManager = tokenManager
+        )
     }
 
     //    Hilt는 이 함수를 통해 CapsuleRepository 인터페이스를 충족하는 구현체를 찾습니다.

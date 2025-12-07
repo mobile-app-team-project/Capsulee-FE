@@ -10,4 +10,6 @@ interface UserRepository {
     suspend fun getMyInfo(): MyInfoDomainModel
 
     suspend fun updateMyInfo(nickname: String, loginId: String): MyInfoDomainModel
+
+    suspend fun logoutUser()
 }

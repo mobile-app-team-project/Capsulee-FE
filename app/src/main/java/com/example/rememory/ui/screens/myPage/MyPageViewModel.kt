@@ -78,9 +78,26 @@ class MyPageViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "정보 수정 실패: ${e.message}"
+                        errorMessage = "Failed editing my info"
                     )
                 }
+            }
+        }
+    }
+
+    fun logout(onLogoutSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                // 1. Repository를 통해 토큰 제거 (및 서버 로그아웃 호출)
+                userRepository.logoutUser()
+
+                // 2. ViewModel 상태 초기화 (필요시)
+                _state.update { MyPageState() }
+
+                // 3. 성공 콜백 호출 (UI 네비게이션 트리거)
+                onLogoutSuccess()
+            } catch (e: Exception) {
+                _state.update { it.copy(errorMessage = "Log out Failed") }
             }
         }
     }

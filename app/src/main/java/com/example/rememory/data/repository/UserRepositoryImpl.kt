@@ -1,18 +1,16 @@
 package com.example.rememory.data.repository
 
 
-import com.example.rememory.data.remote.api.CapsuleService
+import com.example.rememory.data.local.TokenManager
 import com.example.rememory.data.remote.api.UserService
-import com.example.rememory.data.remote.dto.FriendRequestSendDto
 import com.example.rememory.data.remote.dto.MyInfoResponseDto
 import com.example.rememory.data.remote.dto.MyInfoUpdateDto
 import com.example.rememory.data.remote.dto.UserSearchDto
-import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.model.MyInfoDomainModel
 import com.example.rememory.domain.model.UserSearchDomainModel
 import com.example.rememory.domain.model.UserStatus
 import com.example.rememory.domain.repository.UserRepository
-import kotlinx.coroutines.delay
+import javax.inject.Inject
 
 // ----------------------------------------------------
 // Mapper 로직: UserSearchDto -> UserSearchDomainModel
@@ -47,8 +45,9 @@ private fun MyInfoResponseDto.toDomainModel(): MyInfoDomainModel {
     )
 }
 
-class UserRepositoryImpl(
-    private val userService: UserService
+class UserRepositoryImpl @Inject constructor(
+    private val userService: UserService,
+    private val tokenManager: TokenManager
 ): UserRepository {
 
 
@@ -94,5 +93,9 @@ class UserRepositoryImpl(
 
         // 2. 응답 DTO를 Domain Model로 변환
         return response.toDomainModel()
+    }
+
+    override suspend fun logoutUser() {
+        tokenManager.clearTokens()
     }
 }

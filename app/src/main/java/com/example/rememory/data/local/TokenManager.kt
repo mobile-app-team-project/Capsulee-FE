@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.content.edit
 
 @Singleton
 class TokenManager @Inject constructor(
@@ -30,6 +31,7 @@ class TokenManager @Inject constructor(
     }
 
     fun clearTokens() {
-        prefs.edit().clear().apply()
+        prefs.edit { clear() }
+        //prefs.edit().clear().apply()
     }
 }
