@@ -5,6 +5,7 @@ import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.api.UserService
 import com.example.rememory.data.remote.dto.FriendRequestSendDto
 import com.example.rememory.data.remote.dto.MyInfoResponseDto
+import com.example.rememory.data.remote.dto.MyInfoUpdateDto
 import com.example.rememory.data.remote.dto.UserSearchDto
 import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.model.MyInfoDomainModel
@@ -39,10 +40,10 @@ private fun MyInfoResponseDto.toDomainModel(): MyInfoDomainModel {
         userId = this.id,
         loginId = this.loginID,
         nickname = this.username, // 서버 필드명은 username이지만 닉네임으로 매핑
-        totalCapsules = this.stat.total,
-        openedCapsules = this.stat.opened,
-        totalFriends = this.stat.friends,
-        isAlarmOn = this.okAlarm
+        totalCapsules = this.stat?.total ?: 0,
+        openedCapsules = this.stat?.opened ?: 0,
+        totalFriends = this.stat?.friends ?: 0,
+        isAlarmOn = this.okAlarm == true
     )
 }
 
@@ -82,6 +83,16 @@ class UserRepositoryImpl(
         // 1. API 호출
         val response = userService.getMyInfoApi()
         // 2. DTO를 Domain Model로 변환
+        return response.toDomainModel()
+    }
+
+    override suspend fun updateMyInfo(nickname: String, loginId: String): MyInfoDomainModel {
+        val requestBody = MyInfoUpdateDto(username = nickname, loginID = loginId)
+
+        // 1. API 호출
+        val response = userService.updateMyInfoApi(requestBody)
+
+        // 2. 응답 DTO를 Domain Model로 변환
         return response.toDomainModel()
     }
 }

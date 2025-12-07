@@ -7,8 +7,8 @@ data class MyInfoResponseDto(
     val id: Int,
     val loginID: String,
     val username: String,
-    val stat: MyStatsDto,
-    val okAlarm: Boolean
+    val stat: MyStatsDto?,
+    val okAlarm: Boolean?
 )
 
 @Serializable
@@ -16,4 +16,10 @@ data class MyStatsDto(
     val total: Int,   // 내가 수신한 총 캡슐 수
     val opened: Int,  // 내가 수신한 열린 캡슐 수
     val friends: Int  // 친구 수
+)
+
+@Serializable
+data class MyInfoUpdateDto(
+    val username: String, // 새 닉네임
+    val loginID: String   // 새 ID
 )

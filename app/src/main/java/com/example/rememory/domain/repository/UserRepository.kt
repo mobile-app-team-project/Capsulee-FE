@@ -8,4 +8,6 @@ interface UserRepository {
     suspend fun getAllUsers(query: String): List<UserSearchDomainModel>
 
     suspend fun getMyInfo(): MyInfoDomainModel
+
+    suspend fun updateMyInfo(nickname: String, loginId: String): MyInfoDomainModel
 }
