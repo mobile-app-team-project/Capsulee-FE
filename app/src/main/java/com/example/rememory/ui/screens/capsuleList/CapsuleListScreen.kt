@@ -125,9 +125,11 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
             R.drawable.ic_lock_locked
         }
 
+    val summaryList = capsuleInfo.conditionSummary
+
     //띄울 캡슐 개수
     val maxDisplayCount = 3
-    val totalCount = capsuleInfo.conditionSummary.size
+    val totalCount = summaryList.size
     val hiddenCount = (totalCount - maxDisplayCount).coerceAtLeast(0) // 0 미만 방지
 
     Card(
@@ -174,7 +176,7 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
             verticalAlignment = Alignment.Bottom
         ){
             Column {
-                capsuleInfo.conditionSummary.take(maxDisplayCount).forEach { item ->
+                summaryList.take(maxDisplayCount).forEach { item ->
                     val iconRes =
                         when (item.type) {
                             ConditionType.TIME -> {
