@@ -14,12 +14,26 @@ class TokenManager @Inject constructor(
     private val prefs: SharedPreferences =
         context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
+    private companion object {
+        const val USER_LOGIN_ID_KEY = "user_login_id"
+    }
+
     fun saveTokens(accessToken: String, refreshToken: String) {
         prefs.edit().apply {
             putString("access_token", accessToken)
             putString("refresh_token", refreshToken)
             apply()
         }
+    }
+
+    fun saveLoggedInUserLoginId(loginId: String) {
+        prefs.edit {
+            putString(USER_LOGIN_ID_KEY, loginId)
+        }
+    }
+
+    fun getLoggedInUserLoginId(): String? {
+        return prefs.getString(USER_LOGIN_ID_KEY, null)
     }
 
     fun getAccessToken(): String {
@@ -32,6 +46,5 @@ class TokenManager @Inject constructor(
 
     fun clearTokens() {
         prefs.edit { clear() }
-        //prefs.edit().clear().apply()
     }
 }

@@ -34,6 +34,8 @@ class LoginViewModel @Inject constructor(
                 val tokens = authRepository.login(userId, password)
                 tokenManager.saveTokens(tokens.accessToken, tokens.refreshToken)
 
+                tokenManager.saveLoggedInUserLoginId(userId)
+
                 _uiState.update {
                     it.copy(isLoading = false, isSuccess = true)
                 }

@@ -100,8 +100,14 @@ object NetworkModule {
     // 4. Repository 구현체 제공 (Service 인스턴스 주입받아 생성)
     @Provides
     @Singleton
-    fun provideFriendRepository(service: FriendService): FriendRepository {
-        return FriendRepositoryImpl(service)
+    fun provideFriendRepository(
+        service: FriendService,
+        tokenManager: TokenManager
+    ): FriendRepository {
+        return FriendRepositoryImpl(
+            service,
+            tokenManager = tokenManager
+        )
     }
 
     @Provides
