@@ -7,12 +7,11 @@ import com.example.rememory.data.remote.dto.FriendListDto
 import com.example.rememory.data.remote.dto.FriendRequestDto
 import com.example.rememory.data.remote.dto.FriendRequestProcessDto
 import com.example.rememory.data.remote.dto.FriendRequestSendDto
-import com.example.rememory.data.remote.mock.FriendMockData
 import com.example.rememory.domain.model.FriendItemDomainModel
 import com.example.rememory.domain.repository.FriendRepository
-import kotlinx.coroutines.delay
+import javax.inject.Inject
 
-class FriendRepositoryImpl (
+class FriendRepositoryImpl @Inject constructor(
     private val friendService: FriendService,
     private val tokenManager: TokenManager
 ): FriendRepository {

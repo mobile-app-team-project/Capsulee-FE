@@ -1,5 +1,7 @@
 package com.example.rememory.domain.model
 
+import android.R
+
 /**
  * 캡슐 목록 전체 응답 모델 (Domain)
  */
@@ -50,3 +52,10 @@ enum class WeatherCondition {
 enum class ActionCondition {
     SHAKE, SOUND, TAP, COMPASS
 }
+
+data class Recipient(
+    val id: Int,            // userId
+    val username: String,   // 실제 이름
+    val loginId: String,    // 로그인 ID
+    val selected: Boolean = false
+)

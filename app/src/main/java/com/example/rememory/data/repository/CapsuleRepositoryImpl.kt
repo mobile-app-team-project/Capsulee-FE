@@ -1,24 +1,22 @@
 package com.example.rememory.data.repository
 
-import android.R.attr.type
 import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.dto.CapsuleItemDto
 import com.example.rememory.data.remote.dto.CapsuleStatsDto
 import com.example.rememory.data.remote.dto.ConditionInfoDto
-import com.example.rememory.data.remote.mock.CapsuleMockData
 import com.example.rememory.domain.model.CapsuleDomainModel
 import com.example.rememory.domain.model.CapsuleStatsDomainModel
 import com.example.rememory.domain.model.ConditionDomainModel
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.repository.CapsuleListDomain
 import com.example.rememory.domain.repository.CapsuleRepository
-import kotlinx.coroutines.delay
+import javax.inject.Inject
 
 /**
  * Domain Repository의 구현체, 서버 통신 담당
  */
-class CapsuleRepositoryImpl(
-    private val capsuleService: CapsuleService // Retrofit 서비스 주입
+class CapsuleRepositoryImpl @Inject constructor(
+    private val capsuleService: CapsuleService
 ) : CapsuleRepository {
 
     override suspend fun getCapsuleList(isSent: Boolean): CapsuleListDomain {

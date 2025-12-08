@@ -1,20 +1,31 @@
 package com.example.rememory.ui.screens.capsuleCreate
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.domain.model.Recipient
 import com.example.rememory.domain.model.SelectedLocation
 import com.example.rememory.domain.model.WeatherCondition
+import com.example.rememory.domain.repository.FriendRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
 
-class CreateCapsuleViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CreateCapsuleViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val friendRepository: FriendRepository
+) : ViewModel() {
 
     // 캡슐 제목 상태 관리
     private val _title = MutableStateFlow("")
@@ -40,19 +51,12 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
 
     // 이미지 선택이 완료되었을 때 Uri를 받아 File로 변환하고 상태를 업데이트하는 함수
     fun onImageSelected(uri: Uri) {
-        val context = getApplication<Application>().applicationContext
-        // contentResolver를 사용해 Uri로부터 InputStream을 얻음
         val inputStream = context.contentResolver.openInputStream(uri)
-        // 앱의 캐시 디렉토리에 임시 파일 생성
         val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-
-        // InputStream의 내용을 파일에 복사
         inputStream?.use { input ->
-            file.outputStream().use { output ->
-                input.copyTo(output)
-            }
+            file.outputStream().use { output -> input.copyTo(output) }
         }
-        _imageFile.value = file // 파일 상태 업데이트
+        _imageFile.value = file
     }
 
     // Step2
@@ -110,5 +114,43 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
 
     fun setSelectedAction(action: ActionCondition) {
         _selectedAction.value = action
+    }
+
+    // Step 4 - 수신자 선택
+    private val _recipients = MutableStateFlow<List<Recipient>>(emptyList())
+    val recipients: StateFlow<List<Recipient>> = _recipients.asStateFlow()
+
+    fun setRecipients(list: List<Recipient>) {
+        _recipients.value = list
+    }
+
+    fun toggleRecipient(id: Int) {
+        _recipients.value = _recipients.value.map {
+            if (it.id == id) it.copy(selected = !it.selected) else it
+        }
+    }
+
+    fun getSelectedRecipientIds(): List<Int> {
+        return _recipients.value.filter { it.selected }.map { it.id }
+    }
+
+    fun fetchFriendList() {
+        viewModelScope.launch {
+            try {
+                val friends = friendRepository.getFriendList()
+                val mapped = friends.map {
+                    Recipient(
+                        id = it.userId,
+                        username = it.username,
+                        loginId = it.userLoginId,
+                        selected = false
+                    )
+                }
+                _recipients.value = mapped
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 에러 처리 (예: 메시지 표시, 로그 출력 등)
+            }
+        }
     }
 }
