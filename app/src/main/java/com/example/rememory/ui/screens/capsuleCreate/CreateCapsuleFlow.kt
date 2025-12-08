@@ -7,28 +7,41 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.domain.model.WeatherCondition
+import com.example.rememory.ui.screens.capsuleCreate.components.ActionScreen
+import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
-import java.io.File
+import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
+import com.example.rememory.ui.screens.capsuleCreate.components.WeatherScreen
+import kotlinx.coroutines.flow.compose
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
     step: Int,
     capsuleTitle: String,
     capsuleMessage: String,
-    selectedConditions: List<ConditionType>
+    selectedConditions: List<ConditionType>,
+    selectedWeather: WeatherCondition? = null,
+    selectedAction: ActionCondition? = null,
+    currentCondition: ConditionType? = null
 ): Boolean {
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
-        3 -> selectedConditions.isNotEmpty()
+        in 4..10 -> {
+            when (currentCondition) {
+                ConditionType.WEATHER -> selectedWeather != null
+                ConditionType.ACTION -> selectedAction != null
+                else -> true // LOCATION이나 기타 조건은 항상 true
+            }
+        }
         else -> true
     }
 }
@@ -84,23 +97,6 @@ fun CreateCapsuleFlow(
 ) {
     var step by remember { mutableStateOf(1) }
 
-    // 조건 선택 상태
-    val selectedConditions = remember { mutableStateListOf<ConditionType>() }
-
-    // 조건 순서 정렬 (고정 우선순위)
-    val orderedConditionSteps = selectedConditions.sortedWith(compareBy {
-        when (it) {
-            ConditionType.LOCATION -> 1
-            ConditionType.WEATHER -> 2
-            ConditionType.ACTION -> 3
-            else -> Int.MAX_VALUE
-        }
-    })
-
-    // 총 단계 수 계산
-    val totalSteps = 3 + orderedConditionSteps.size + 2
-    // 1: 기본정보, 2: 날짜, 3: 조건선택, 4~n: 조건 상세, n+1: 수신자 선택, n+2: 확인 및 최종 제출
-
     // Step 1 상태
     val capsuleTitle by viewModel.title.collectAsState()
     val capsuleMessage by viewModel.message.collectAsState()
@@ -117,6 +113,28 @@ fun CreateCapsuleFlow(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedTime by viewModel.selectedTime.collectAsState()
 
+    // Step 3 상태
+    val selectedConditions by viewModel.selectedConditions.collectAsState()
+
+    // 조건 순서 정렬 (고정 우선순위)
+    val orderedConditionSteps = selectedConditions.sortedWith(compareBy {
+        when (it) {
+            ConditionType.LOCATION -> 1
+            ConditionType.WEATHER -> 2
+            ConditionType.ACTION -> 3
+            else -> Int.MAX_VALUE
+        }
+    })
+
+    // 총 단계 수 계산
+    val totalSteps = 3 + orderedConditionSteps.size + 2
+    // 1: 기본정보, 2: 날짜, 3: 조건선택, 4~n: 조건 상세, n+1: 수신자 선택, n+2: 확인 및 최종 제출
+
+    val currentCondition: ConditionType? =
+        if (step in 4 until 4 + orderedConditionSteps.size)
+            orderedConditionSteps[step - 4]
+        else null
+
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
         subtitle = getStepSubtitle(step, orderedConditionSteps),
@@ -128,7 +146,10 @@ fun CreateCapsuleFlow(
             step = step,
             capsuleTitle = capsuleTitle,
             capsuleMessage = capsuleMessage,
-            selectedConditions = selectedConditions
+            selectedConditions = selectedConditions,
+            selectedWeather = viewModel.selectedWeather.collectAsState().value,
+            selectedAction = viewModel.selectedAction.collectAsState().value,
+            currentCondition = currentCondition
         ),
         isSingleButton = false,
         onPrevious = {
@@ -138,6 +159,7 @@ fun CreateCapsuleFlow(
                 navController.popBackStack() // step == 1일 때 뒤로 가기
             }
         },
+        showBottomBar = currentCondition != ConditionType.LOCATION,
         onNext = { step = goToNextStep(step, orderedConditionSteps) }
     ) {
 
@@ -159,26 +181,37 @@ fun CreateCapsuleFlow(
                 onTimeChange = { viewModel.onTimeSelected(it) }
             )
 
-//
-//            3 -> Step3SelectConditions(
-//                selectedConditions = selectedConditions,
-//                onToggle = { condition ->
-//                    if (selectedConditions.contains(condition))
-//                        selectedConditions.remove(condition)
-//                    else
-//                        selectedConditions.add(condition)
-//                }
-//            )
-//
-//            in 4 until 4 + orderedConditionSteps.size -> {
-//                val currentCondition = orderedConditionSteps[step - 4]
-//
-//                when (currentCondition) {
-//                    ConditionType.LOCATION -> StepLocationInput()
-//                    ConditionType.WEATHER -> StepWeatherInput()
-//                    ConditionType.ACTION -> StepActionInput()
-//                }
-//            }
+            3 -> Step3SelectConditions(
+                selectedConditions = selectedConditions,
+                onToggle = { condition -> viewModel.toggleCondition(condition) }
+            )
+
+            in 4 until 4 + orderedConditionSteps.size -> {
+                val currentCondition = orderedConditionSteps[step - 4]
+
+                when (currentCondition) {
+                    ConditionType.LOCATION -> LocationScreen(
+                        onNextClicked = { step = goToNextStep(step, orderedConditionSteps) },
+                        onPreviousClicked = { step-- },
+                        onUseCurrentLocation = { latLng ->
+                            // 지도 위치 이동 처리에만 사용됨
+                        },
+                        onLocationSelected = { selectedLocation ->
+                            viewModel.setSelectedLocation(selectedLocation)
+                        }
+                    )
+                    ConditionType.WEATHER -> WeatherScreen(
+                        selectedWeather = viewModel.selectedWeather.collectAsState().value,
+                        onWeatherSelected = { viewModel.setSelectedWeather(it) }
+                    )
+
+                    ConditionType.ACTION -> ActionScreen(
+                        selectedAction = viewModel.selectedAction.collectAsState().value,
+                        onActionSelected = { viewModel.setSelectedAction(it) }
+                    )
+                    else -> {}
+                }
+            }
 //
 //            // 수신자 선택 단계
 //            4 + orderedConditionSteps.size -> StepRecipientSelection()
@@ -192,33 +225,4 @@ fun CreateCapsuleFlow(
 //            )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CreateCapsuleFlowPreview() {
-    val dummyTitle = "Graduation Day"
-    val dummyMessage = "We finally did it!"
-    val dummyImageFile: File? = null
-
-    CreateCapsuleScreen(
-        title = "Create Your Memory",
-        subtitle = "Tell us about your memory",
-        progress = 0.1f,
-        showPrevious = false,
-        nextText = "NEXT",
-        onNext = {},
-        rightEnabled = true,
-        isSingleButton = false,
-        content = {
-            Step1BasicInfo(
-                title = dummyTitle,
-                message = dummyMessage,
-                imageFile = dummyImageFile,
-                onTitleChange = {},
-                onMessageChange = {},
-                onImageSelected = {} // 여기에 imagePickerLauncher는 프리뷰에서 필요 없음
-            )
-        }
-    )
 }

@@ -42,3 +42,11 @@ enum class ConditionType {
     ACTION, // 서버에서 정의되지 않은 타입 처리
     TIME,
 }
+
+enum class WeatherCondition {
+    CLEAR, RAINY, SNOWY, CLOUD
+}
+
+enum class ActionCondition {
+    SHAKE, SOUND, TAP, COMPASS
+}

@@ -3,6 +3,10 @@ package com.example.rememory.ui.screens.capsuleCreate
 import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
+import com.example.rememory.domain.model.ActionCondition
+import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.domain.model.SelectedLocation
+import com.example.rememory.domain.model.WeatherCondition
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,5 +68,47 @@ class CreateCapsuleViewModel(application: Application) : AndroidViewModel(applic
 
     fun onTimeSelected(time: LocalTime?) {
         _selectedTime.value = time
+    }
+
+    // Step3 - 선택된 조건들
+    private val _selectedConditions = MutableStateFlow<List<ConditionType>>(emptyList())
+    val selectedConditions: StateFlow<List<ConditionType>> = _selectedConditions.asStateFlow()
+
+    fun toggleCondition(condition: ConditionType) {
+        _selectedConditions.value =
+            if (_selectedConditions.value.contains(condition)) {
+                _selectedConditions.value - condition
+            } else {
+                _selectedConditions.value + condition
+            }
+    }
+
+    fun clearConditions() {
+        _selectedConditions.value = emptyList()
+    }
+
+    // Step 4
+    // 위치 조건
+    private val _selectedLocation = MutableStateFlow<SelectedLocation?>(null)
+    val selectedLocation: StateFlow<SelectedLocation?> = _selectedLocation
+
+    fun setSelectedLocation(location: SelectedLocation) {
+        _selectedLocation.value = location
+    }
+
+    // 날씨 조건
+    private val _selectedWeather = MutableStateFlow<WeatherCondition?>(null)
+    val selectedWeather: StateFlow<WeatherCondition?> = _selectedWeather
+
+    fun setSelectedWeather(condition: WeatherCondition?) {
+        _selectedWeather.value = condition
+    }
+
+    // 행동 조건
+    private val _selectedAction = MutableStateFlow<ActionCondition?>(null)
+    val selectedAction: StateFlow<ActionCondition?> = _selectedAction
+
+    fun setSelectedAction(action: ActionCondition) {
+        _selectedAction.value = action
     }
 }
