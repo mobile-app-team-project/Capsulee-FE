@@ -10,4 +10,5 @@ sealed class Screen(val route: String) {
     object CapsuleDetail : Screen("capsule_detail/{capsuleId}") {
         fun createRoute(capsuleId: Int) = "capsule_detail/$capsuleId"
     }
+    object CapsuleCreateComplete: Screen("capsule_create_complete")
 }

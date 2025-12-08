@@ -78,7 +78,7 @@ fun ActionCard(
         ActionCondition.SHAKE -> "Shake 3 times"
         ActionCondition.SOUND -> "Sound"
         ActionCondition.TAP -> "Tap 3 times"
-        ActionCondition.COMPASS -> "Point to Your\n“North”"
+        ActionCondition.COMPASS -> "Point to Your “North”"
     }
 
     Card(

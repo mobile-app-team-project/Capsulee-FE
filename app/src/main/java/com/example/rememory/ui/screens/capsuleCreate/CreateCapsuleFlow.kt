@@ -3,6 +3,7 @@ package com.example.rememory.ui.screens.capsuleCreate
 import CreateCapsuleScreen
 import Step1BasicInfo
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -11,17 +12,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.model.WeatherCondition
 import com.example.rememory.ui.screens.capsuleCreate.components.ActionScreen
+import com.example.rememory.ui.screens.capsuleCreate.components.CreateFinalConfirm
 import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
+import com.example.rememory.ui.screens.capsuleCreate.components.Step4RecipientSelection
 import com.example.rememory.ui.screens.capsuleCreate.components.WeatherScreen
-import kotlinx.coroutines.flow.compose
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
@@ -31,17 +33,26 @@ fun isNextEnabled(
     selectedConditions: List<ConditionType>,
     selectedWeather: WeatherCondition? = null,
     selectedAction: ActionCondition? = null,
-    currentCondition: ConditionType? = null
+    currentCondition: ConditionType? = null,
+    selectedRecipientsCount: Int = 0,
+    conditionOrder: List<ConditionType> = emptyList()
 ): Boolean {
+    val recipientStep = 4 + conditionOrder.size
+
+    if (step == recipientStep) {
+        return selectedRecipientsCount > 0
+    }
+
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
-        in 4..10 -> {
+        in 4 until recipientStep -> {
             when (currentCondition) {
                 ConditionType.WEATHER -> selectedWeather != null
                 ConditionType.ACTION -> selectedAction != null
                 else -> true // LOCATION이나 기타 조건은 항상 true
             }
         }
+
         else -> true
     }
 }
@@ -76,7 +87,7 @@ fun getStepSubtitle(step: Int, conditionOrder: List<ConditionType>): String =
         }
         4 + conditionOrder.size -> "Send it just for you, or invite friends\n" +
                 "to unlock it together"
-        else -> "Please review your capsule before it's sealed forever"
+        else -> "Please review your capsule before\n" + "it's sealed forever"
     }
 
 // Next 버튼 텍스트 변경
@@ -93,7 +104,7 @@ fun goToNextStep(step: Int, conditionOrder: List<ConditionType>): Int =
 @Composable
 fun CreateCapsuleFlow(
     navController: NavController,
-    viewModel: CreateCapsuleViewModel = viewModel()
+    viewModel: CreateCapsuleViewModel = hiltViewModel()
 ) {
     var step by remember { mutableStateOf(1) }
 
@@ -135,6 +146,9 @@ fun CreateCapsuleFlow(
             orderedConditionSteps[step - 4]
         else null
 
+    val selectedRecipientsCount =
+        viewModel.recipients.collectAsState().value.count { it.selected }
+
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
         subtitle = getStepSubtitle(step, orderedConditionSteps),
@@ -149,7 +163,9 @@ fun CreateCapsuleFlow(
             selectedConditions = selectedConditions,
             selectedWeather = viewModel.selectedWeather.collectAsState().value,
             selectedAction = viewModel.selectedAction.collectAsState().value,
-            currentCondition = currentCondition
+            currentCondition = currentCondition,
+            selectedRecipientsCount = selectedRecipientsCount,   // ⬅ 추가
+            conditionOrder = orderedConditionSteps
         ),
         isSingleButton = false,
         onPrevious = {
@@ -160,7 +176,26 @@ fun CreateCapsuleFlow(
             }
         },
         showBottomBar = currentCondition != ConditionType.LOCATION,
-        onNext = { step = goToNextStep(step, orderedConditionSteps) }
+        onNext = {
+            val reviewStep = 3 + orderedConditionSteps.size + 2
+            if (step == reviewStep) {
+                // 마지막 단계에서 submit 호출
+                viewModel.submitCapsule(
+                    onSuccess = {
+                        // 예: 캡슐 목록으로 이동
+                        navController.navigate("capsule_create_complete") {
+                            popUpTo("create_capsule_flow") { inclusive = true }
+                        }
+                    },
+                    onFailure = { error ->
+                        // 예: 에러 메시지 출력 (임시용)
+                        Log.e("CreateCapsule", "Failed to create capsule", error)
+                    }
+                )
+            } else {
+                step = goToNextStep(step, orderedConditionSteps)
+            }
+        }
     ) {
 
         when (step) {
@@ -212,17 +247,12 @@ fun CreateCapsuleFlow(
                     else -> {}
                 }
             }
-//
-//            // 수신자 선택 단계
-//            4 + orderedConditionSteps.size -> StepRecipientSelection()
-//
-//            // 마지막 확인 단계
-//            else -> StepFinalConfirm(
-//                onSubmit = {
-//                    // API 호출
-//                    navController.popBackStack()
-//                }
-//            )
+
+            // 수신자 선택 단계
+            4 + orderedConditionSteps.size -> Step4RecipientSelection(viewModel = viewModel)
+
+            // 마지막 확인 단계
+            else -> CreateFinalConfirm(viewModel)
         }
     }
 }

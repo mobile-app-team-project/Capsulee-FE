@@ -26,9 +26,9 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -98,36 +98,6 @@ object NetworkModule {
     fun provideCapsuleService(retrofit: Retrofit): CapsuleService {
         return retrofit.create(CapsuleService::class.java)
 //        return com.example.rememory.data.remote.api.MockCapsuleService()
-    }
-
-    // 4. Repository 구현체 제공 (Service 인스턴스 주입받아 생성)
-    @Provides
-    @Singleton
-    fun provideFriendRepository(
-        service: FriendService,
-        tokenManager: TokenManager
-    ): FriendRepository {
-        return FriendRepositoryImpl(
-            service,
-            tokenManager = tokenManager
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(service: UserService, tokenManager: TokenManager): UserRepository {
-        return UserRepositoryImpl(
-            service,
-            tokenManager = tokenManager
-        )
-    }
-
-    //    Hilt는 이 함수를 통해 CapsuleRepository 인터페이스를 충족하는 구현체를 찾습니다.
-    @Provides
-    @Singleton
-    fun provideCapsuleRepository(service: CapsuleService): CapsuleRepository {
-        //  CapsuleRepositoryImpl 생성자가 CapsuleService를 인자로 받는다고 가정
-        return CapsuleRepositoryImpl(service)
     }
 
     @Provides
