@@ -49,8 +49,11 @@ enum class WeatherCondition {
     CLEAR, RAINY, SNOWY, CLOUD
 }
 
-enum class ActionCondition {
-    SHAKE, SOUND, TAP, COMPASS
+enum class ActionCondition(val label: String) {
+    SHAKE("Shake 3 times"),
+    SOUND("Sound"),
+    TAP("Tap 3 times"),
+    COMPASS("Point to Your\n“North”")
 }
 
 data class Recipient(
