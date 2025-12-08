@@ -34,7 +34,7 @@ fun AppHeader(
     titleStyle: TextStyle,
     onBackClick: (() -> Unit)? = null,
     onPlusClick: (() -> Unit)? = null,
-    onBellClick: () -> Unit
+    onBellClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -79,17 +79,8 @@ fun AppHeader(
                         .size(30.dp)
                         .clickable { onPlusClick() }
                 )
-                Spacer(Modifier.width(3.dp))
+                Spacer(Modifier.width(18.dp))
             }
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_bell),
-                contentDescription = "알림",
-                modifier = Modifier
-                    .padding(end = 14.dp)
-                    .size(30.dp)
-                    .clickable { onBellClick() }
-            )
         }
     }
 }

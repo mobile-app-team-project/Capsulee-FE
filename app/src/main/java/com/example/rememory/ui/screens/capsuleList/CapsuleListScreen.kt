@@ -99,6 +99,8 @@ fun CapsuleListScreen(
                 ) {
                     Text("Error: ${uiState.errorMessage}", color = Color.Red)
                 }
+            } else if (uiState.capsules.isEmpty()) {
+                Text("There are no Capsules yet...T.T")
             } else {
                 // 데이터 로드 완료 시 (LazyColumn으로 변경)
                 LazyColumn (
@@ -148,7 +150,7 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
             horizontalArrangement = Arrangement.SpaceBetween
         ){
             Column (
-                modifier = Modifier.widthIn(max = 200.dp)
+                modifier = Modifier.widthIn(max = 250.dp)
             ){
                 Text(
                     text = capsuleInfo.title,
@@ -185,6 +187,9 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
                             }
                             ConditionType.LOCATION -> {
                                 R.drawable.ic_map_pin_heart_purple
+                            }
+                            ConditionType.WEATHER -> {
+                                R.drawable.ic_clear_day_purple
                             }
                             else -> {
                                 R.drawable.ic_action_purple

@@ -100,14 +100,23 @@ object NetworkModule {
     // 4. Repository 구현체 제공 (Service 인스턴스 주입받아 생성)
     @Provides
     @Singleton
-    fun provideFriendRepository(service: FriendService): FriendRepository {
-        return FriendRepositoryImpl(service)
+    fun provideFriendRepository(
+        service: FriendService,
+        tokenManager: TokenManager
+    ): FriendRepository {
+        return FriendRepositoryImpl(
+            service,
+            tokenManager = tokenManager
+        )
     }
 
     @Provides
     @Singleton
-    fun provideUserRepository(service: UserService): UserRepository {
-        return UserRepositoryImpl(service)
+    fun provideUserRepository(service: UserService, tokenManager: TokenManager): UserRepository {
+        return UserRepositoryImpl(
+            service,
+            tokenManager = tokenManager
+        )
     }
 
     //    Hilt는 이 함수를 통해 CapsuleRepository 인터페이스를 충족하는 구현체를 찾습니다.

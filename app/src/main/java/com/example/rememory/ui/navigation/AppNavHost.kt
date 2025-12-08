@@ -21,6 +21,7 @@ import com.example.rememory.ui.screens.friends.FriendManagingScreen
 import com.example.rememory.ui.screens.friends.FriendManagingViewModel
 import com.example.rememory.ui.screens.home.HomeScreen
 import com.example.rememory.ui.screens.myPage.MyPageScreen
+import com.example.rememory.ui.screens.myPage.MyPageViewModel
 
 @Composable
 fun AppNavHost(
@@ -73,7 +74,12 @@ fun AppNavHost(
                 )
             }
             composable(BottomNavItem.MyPage.route) {
-                MyPageScreen(navController = navController)
+                val viewModel: MyPageViewModel = hiltViewModel()
+
+                MyPageScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
 
             // --- 하단 바가 보이지 않는 화면 ---

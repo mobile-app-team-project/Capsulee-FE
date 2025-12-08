@@ -13,3 +13,13 @@ data class UserSearchDomainModel(
     val username: String,
     val status: UserStatus // 친구 상태/요청 상태/나 자신 표시
 )
+
+data class MyInfoDomainModel(
+    val userId: Int,
+    val loginId: String,
+    val nickname: String,
+    val totalCapsules: Int,
+    val openedCapsules: Int,
+    val totalFriends: Int,
+    val isAlarmOn: Boolean
+)
