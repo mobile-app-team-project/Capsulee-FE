@@ -10,12 +10,20 @@ import com.example.rememory.data.remote.dto.LocationConditionRequestDto
 import com.example.rememory.data.remote.dto.LocationConditionResponseDto
 import com.example.rememory.data.remote.dto.ReadyRequestDto
 import com.example.rememory.data.remote.dto.ReadyResponseDto
+import com.example.rememory.data.remote.dto.CreateCapsuleResponse
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Body
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 
+/**
+ * 캡슐 관련 API 통신 서비스 인터페이스
+ */
 interface CapsuleService {
 
     // Query Parameter: ?type=sent 또는 ?type=received
@@ -23,6 +31,14 @@ interface CapsuleService {
     suspend fun getCapsules(
         @Query("type") type: String // "sent" 또는 "received"
     ): CapsuleListResponseDto
+
+    // 캡슐 생성 API
+    @Multipart
+    @POST("/capsules")
+    suspend fun createCapsule(
+        @Part("data") data: RequestBody,
+        @Part imageFile: MultipartBody.Part? = null
+    ): CreateCapsuleResponse
 
     // 캡슐 상세 조회
     @GET("/capsules/{capsuleId}")
@@ -47,7 +63,6 @@ interface CapsuleService {
     ): ActionConditionResponseDto
 
     // ========== Ready/Open 관련 ==========
-
     // Ready 상태 설정
     @POST("/unlock/ready/{capsuleId}")
     suspend fun setReady(
@@ -60,4 +75,5 @@ interface CapsuleService {
     suspend fun checkLobbyStatus(
         @Path("capsuleId") capsuleId: Int
     ): LobbyStatusResponseDto
+
 }

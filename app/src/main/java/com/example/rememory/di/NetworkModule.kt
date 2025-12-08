@@ -7,18 +7,9 @@ import com.example.rememory.data.remote.api.AuthService
 import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.api.FriendService
 import com.example.rememory.data.remote.api.UserService
-import com.example.rememory.data.repository.AuthRepositoryImpl
 import com.example.rememory.data.repository.CapsuleDetailRepositoryImpl
-import com.example.rememory.data.repository.CapsuleRepositoryImpl
-import com.example.rememory.data.repository.FriendRepositoryImpl
-import com.example.rememory.data.repository.HomeRepositoryImpl
-import com.example.rememory.data.repository.UserRepositoryImpl
-import com.example.rememory.domain.repository.AuthRepository
 import com.example.rememory.domain.repository.CapsuleDetailRepository
-import com.example.rememory.domain.repository.CapsuleRepository
-import com.example.rememory.domain.repository.FriendRepository
-import com.example.rememory.domain.repository.HomeRepository
-import com.example.rememory.domain.repository.UserRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,9 +17,9 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -100,57 +91,17 @@ object NetworkModule {
 //        return com.example.rememory.data.remote.api.MockCapsuleService()
     }
 
-    // 4. Repository 구현체 제공 (Service 인스턴스 주입받아 생성)
-    @Provides
-    @Singleton
-    fun provideFriendRepository(
-        service: FriendService,
-        tokenManager: TokenManager
-    ): FriendRepository {
-        return FriendRepositoryImpl(
-            service,
-            tokenManager = tokenManager
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(service: UserService, tokenManager: TokenManager): UserRepository {
-        return UserRepositoryImpl(
-            service,
-            tokenManager = tokenManager
-        )
-    }
-
-    //    Hilt는 이 함수를 통해 CapsuleRepository 인터페이스를 충족하는 구현체를 찾습니다.
-    @Provides
-    @Singleton
-    fun provideCapsuleRepository(service: CapsuleService): CapsuleRepository {
-        //  CapsuleRepositoryImpl 생성자가 CapsuleService를 인자로 받는다고 가정
-        return CapsuleRepositoryImpl(service)
-    }
-
     @Provides
     @Singleton
     fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideAuthRepository(service: AuthService): AuthRepository {
-        return AuthRepositoryImpl(service)
-    }
-
-    @Provides
-    @Singleton
-    fun provideHomeRepository(): HomeRepository {
-        return HomeRepositoryImpl()
-    }
 
     @Provides
     @Singleton
     fun provideCapsuleDetailRepository(service: CapsuleService): CapsuleDetailRepository {
         return CapsuleDetailRepositoryImpl(service)
     }
+
 }

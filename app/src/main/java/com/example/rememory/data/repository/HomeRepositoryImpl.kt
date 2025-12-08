@@ -4,8 +4,9 @@ import com.example.rememory.data.remote.mock.HomeMockData
 import com.example.rememory.domain.model.HomeScreenData
 import com.example.rememory.domain.repository.HomeRepository
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
-class HomeRepositoryImpl : HomeRepository {
+class HomeRepositoryImpl @Inject constructor() : HomeRepository {
     override suspend fun getHomeData(): HomeScreenData {
         delay(500) // 네트워크 지연 시뮬레이션
         return HomeMockData.getHomeScreenData()
