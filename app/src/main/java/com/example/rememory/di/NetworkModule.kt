@@ -88,7 +88,6 @@ object NetworkModule {
     @Singleton
     fun provideCapsuleService(retrofit: Retrofit): CapsuleService {
         return retrofit.create(CapsuleService::class.java)
-//        return com.example.rememory.data.remote.api.MockCapsuleService()
     }
 
     @Provides
