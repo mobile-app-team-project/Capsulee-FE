@@ -13,20 +13,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
+import com.example.rememory.domain.model.WeatherCondition
+import com.example.rememory.ui.screens.capsuleCreate.components.ActionScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
+import com.example.rememory.ui.screens.capsuleCreate.components.WeatherScreen
+import kotlinx.coroutines.flow.compose
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
     step: Int,
     capsuleTitle: String,
     capsuleMessage: String,
-    selectedConditions: List<ConditionType>
+    selectedConditions: List<ConditionType>,
+    selectedWeather: WeatherCondition? = null,
+    selectedAction: ActionCondition? = null,
+    currentCondition: ConditionType? = null
 ): Boolean {
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
+        in 4..10 -> {
+            when (currentCondition) {
+                ConditionType.WEATHER -> selectedWeather != null
+                ConditionType.ACTION -> selectedAction != null
+                else -> true // LOCATION이나 기타 조건은 항상 true
+            }
+        }
         else -> true
     }
 }
@@ -131,7 +146,10 @@ fun CreateCapsuleFlow(
             step = step,
             capsuleTitle = capsuleTitle,
             capsuleMessage = capsuleMessage,
-            selectedConditions = selectedConditions
+            selectedConditions = selectedConditions,
+            selectedWeather = viewModel.selectedWeather.collectAsState().value,
+            selectedAction = viewModel.selectedAction.collectAsState().value,
+            currentCondition = currentCondition
         ),
         isSingleButton = false,
         onPrevious = {
@@ -182,11 +200,16 @@ fun CreateCapsuleFlow(
                             viewModel.setSelectedLocation(selectedLocation)
                         }
                     )
+                    ConditionType.WEATHER -> WeatherScreen(
+                        selectedWeather = viewModel.selectedWeather.collectAsState().value,
+                        onWeatherSelected = { viewModel.setSelectedWeather(it) }
+                    )
 
-                    else -> {
-                        // 아직 구현 안된 WEATHER, ACTION 등의 조건이 여기로 들어옴
-                        // 임시로 비워둠 (또는 Log 출력해도 OK)
-                    }
+                    ConditionType.ACTION -> ActionScreen(
+                        selectedAction = viewModel.selectedAction.collectAsState().value,
+                        onActionSelected = { viewModel.setSelectedAction(it) }
+                    )
+                    else -> {}
                 }
             }
 //
