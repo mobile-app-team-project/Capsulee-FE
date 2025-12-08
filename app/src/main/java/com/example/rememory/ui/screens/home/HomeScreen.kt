@@ -28,7 +28,6 @@ import com.example.rememory.R
 import com.example.rememory.domain.model.CapsuleStatus
 import com.example.rememory.ui.components.AppHeader
 import com.example.rememory.ui.components.PrimaryButton
-import com.example.rememory.ui.components.SecondaryButton
 import com.example.rememory.ui.components.TitleLogoStyle
 import com.example.rememory.ui.navigation.Screen
 import com.example.rememory.ui.theme.*
@@ -128,21 +127,6 @@ fun HomeScreen(
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
-
-                    // 테스트용 버튼 추가
-                    SecondaryButton(
-                        text = "Test Detail",
-                        onClick = {
-                            // 캡슐 상세 화면으로 이동 (테스트용 ID: 100)
-//                            navController.navigate("capsule_detail/100")
-                            navController.navigate(Screen.CapsuleDetail.createRoute(100))
-                        },
-                        modifier = Modifier
-                            .width(260.dp)
-                            .height(58.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
 
                     PrimaryButton(
                         text = "Create Capsule",

@@ -1,5 +1,8 @@
 package com.example.rememory.domain.repository
 
+import com.example.rememory.data.remote.dto.ActionConditionRequestDto
+import com.example.rememory.data.remote.dto.LocationConditionRequestDto
+import com.example.rememory.data.remote.dto.LocationConditionResponseDto
 import com.example.rememory.domain.model.ActionConditionResult
 import com.example.rememory.domain.model.CapsuleDetailData
 import com.example.rememory.domain.model.LobbyStatus
@@ -18,18 +21,12 @@ interface CapsuleDetailRepository {
      * @return 업데이트된 캡슐 상세 정보
      */
 
-    suspend fun checkLocationCondition(
-        capsuleId: Int,
-        latitude: Double,
-        longitude: Double
-    ): LocationConditionResult
-
-    suspend fun checkActionCondition(
-        capsuleId: Int,
-        actionType: String
-    ): ActionConditionResult
+    suspend fun checkLocationCondition(request: LocationConditionRequestDto): LocationConditionResponseDto
+    suspend fun checkActionCondition(request: ActionConditionRequestDto): ActionConditionResult
 
     suspend fun setReady(capsuleId: Int, ready: Boolean): Boolean
 
     suspend fun checkLobbyStatus(capsuleId: Int): LobbyStatus
+
+    suspend fun openCapsule(capsuleId: Int): CapsuleDetailData
 }
