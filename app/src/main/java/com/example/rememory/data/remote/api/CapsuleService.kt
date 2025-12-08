@@ -76,4 +76,6 @@ interface CapsuleService {
         @Path("capsuleId") capsuleId: Int
     ): LobbyStatusResponseDto
 
+    @GET("/capsules/home")
+    suspend fun getHomeInfo(): CapsuleDetailResponseDto
 }

@@ -2,6 +2,7 @@ package com.example.rememory.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rememory.data.remote.dto.CapsuleDetailWrapperDto
 import com.example.rememory.data.repository.HomeRepositoryImpl
 import com.example.rememory.domain.model.HomeScreenData
 import com.example.rememory.domain.repository.HomeRepository
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
-    val homeData: HomeScreenData? = null,
+    val homeData: CapsuleDetailWrapperDto? = null,
+    val capsuleStatus: String = "LOCKED",
     val remainingDays: Int = 0,
     val remainingTime: String = "00:00",
     val remainingSeconds: Int = 0,
@@ -42,7 +44,8 @@ class HomeViewModel @Inject constructor(
 
             _uiState.update {
                 it.copy(
-                    homeData = data,
+                    homeData = data.capsuleDetail,
+                    capsuleStatus = data.status,
                     isLoading = false
                 )
             }

@@ -96,7 +96,7 @@ fun HomeScreen(
                     ) {
                         Image(
                             painter = painterResource(
-                                id = if (data.status == CapsuleStatus.LOCKED) {
+                                id = if (uiState.capsuleStatus == CapsuleStatus.LOCKED.name) {
                                     R.drawable.ic_capsulee_main
                                 } else {
                                     R.drawable.ic_capsulee_open
