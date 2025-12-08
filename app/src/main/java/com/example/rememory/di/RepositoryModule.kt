@@ -1,11 +1,14 @@
 package com.example.rememory.di
 
+import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.repository.AuthRepositoryImpl
+import com.example.rememory.data.repository.CapsuleDetailRepositoryImpl
 import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.data.repository.FriendRepositoryImpl
 import com.example.rememory.data.repository.HomeRepositoryImpl
 import com.example.rememory.data.repository.UserRepositoryImpl
 import com.example.rememory.domain.repository.AuthRepository
+import com.example.rememory.domain.repository.CapsuleDetailRepository
 import com.example.rememory.domain.repository.CapsuleRepository
 import com.example.rememory.domain.repository.FriendRepository
 import com.example.rememory.domain.repository.HomeRepository
@@ -49,4 +52,5 @@ abstract class RepositoryModule {
     abstract fun bindHomeRepository(
         impl: HomeRepositoryImpl
     ): HomeRepository
+
 }

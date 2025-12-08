@@ -8,11 +8,11 @@ data class CreateCapsuleRequest(
     val content: String,
     val openTime: String,
     val recipientIds: List<Int>,
-    val conditions: List<ConditionDto>
+    val conditions: List<CreateConditionDto>
 )
 
 @Serializable
-data class ConditionDto(
+data class CreateConditionDto(
     val type: String,
     val value: String
 )
@@ -25,5 +25,5 @@ data class CreateCapsuleResponse(
     val imageUrl: String?,
     val openTime: String,
     val recipientIds: List<Int>,
-    val conditions: List<ConditionDto>
+    val conditions: List<CreateConditionDto>
 )

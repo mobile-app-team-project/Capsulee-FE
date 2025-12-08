@@ -1,19 +1,24 @@
 package com.example.rememory.data.remote.api
 
 
+import com.example.rememory.data.remote.dto.ActionConditionRequestDto
+import com.example.rememory.data.remote.dto.ActionConditionResponseDto
+import com.example.rememory.data.remote.dto.CapsuleDetailResponseDto
 import com.example.rememory.data.remote.dto.CapsuleListResponseDto
-import com.example.rememory.data.remote.dto.CreateCapsuleRequest
+import com.example.rememory.data.remote.dto.LobbyStatusResponseDto
+import com.example.rememory.data.remote.dto.LocationConditionRequestDto
+import com.example.rememory.data.remote.dto.LocationConditionResponseDto
+import com.example.rememory.data.remote.dto.ReadyRequestDto
+import com.example.rememory.data.remote.dto.ReadyResponseDto
 import com.example.rememory.data.remote.dto.CreateCapsuleResponse
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
-//목데이터를 위해
-import com.example.rememory.data.remote.mock.CapsuleMockData
-import kotlinx.coroutines.delay
+import retrofit2.http.Body
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.Body
 import retrofit2.http.Multipart
-import retrofit2.http.POST
 import retrofit2.http.Part
 
 /**
@@ -35,39 +40,40 @@ interface CapsuleService {
         @Part imageFile: MultipartBody.Part? = null
     ): CreateCapsuleResponse
 
-}
+    // 캡슐 상세 조회
+    @GET("/capsules/{capsuleId}")
+    suspend fun getCapsuleDetail(
+        @Path("capsuleId") capsuleId: Int
+    ): CapsuleDetailResponseDto
 
+    // ========== 조건 체크 API ==========
 
-/**
- * MOCK DATA
- */
-class MockCapsuleService : CapsuleService {
+    // 위치/날씨 조건 체크
+    @POST("/capsules/{capsuleId}/conditions/location")
+    suspend fun checkLocationCondition(
+        @Path("capsuleId") capsuleId: Int,
+        @Body request: LocationConditionRequestDto
+    ): LocationConditionResponseDto
 
-    private val MOCK_DELAY_MS = 500L
+    // 행동 조건 체크
+    @POST("/capsules/{capsuleId}/conditions/action")
+    suspend fun checkActionCondition(
+        @Path("capsuleId") capsuleId: Int,
+        @Body request: ActionConditionRequestDto
+    ): ActionConditionResponseDto
 
-    override suspend fun getCapsules(type: String): CapsuleListResponseDto {
-        delay(MOCK_DELAY_MS)
+    // ========== Ready/Open 관련 ==========
+    // Ready 상태 설정
+    @POST("/unlock/ready/{capsuleId}")
+    suspend fun setReady(
+        @Path("capsuleId") capsuleId: Int,
+        @Body request: ReadyRequestDto
+    ): ReadyResponseDto
 
-        return when (type.uppercase()) {
-            "SENT" -> CapsuleMockData.getSentCapsulesDto()
-            "RECEIVED" -> CapsuleMockData.getReceivedCapsulesDto()
-            else -> throw IllegalArgumentException("Invalid capsule type: $type")
-        }
-    }
+    // 로비 상태 조회 (폴링용)
+    @GET("/unlock/check/{capsuleId}")
+    suspend fun checkLobbyStatus(
+        @Path("capsuleId") capsuleId: Int
+    ): LobbyStatusResponseDto
 
-    override suspend fun createCapsule(
-        data: RequestBody,
-        imageFile: MultipartBody.Part?
-    ): CreateCapsuleResponse {
-        // 테스트용 mock 응답 반환
-        return CreateCapsuleResponse(
-            id = 999,
-            title = "Mock Title",
-            content = "Mock Content",
-            imageUrl = "https://mock.image.url",
-            openTime = "2025-01-01T00:00:00",
-            recipientIds = listOf(1, 2),
-            conditions = emptyList()
-        )
-    }
 }

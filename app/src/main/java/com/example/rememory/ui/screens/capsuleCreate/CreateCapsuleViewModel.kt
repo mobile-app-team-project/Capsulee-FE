@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rememory.data.remote.dto.ConditionDto
 import com.example.rememory.data.remote.dto.CreateCapsuleRequest
+import com.example.rememory.data.remote.dto.CreateConditionDto
 import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.model.Recipient
@@ -174,11 +174,11 @@ class CreateCapsuleViewModel @Inject constructor(
 
                 val recipientIds = _recipients.value.filter { it.selected }.map { it.id }
 
-                val conditions = mutableListOf<ConditionDto>()
+                val conditions = mutableListOf<CreateConditionDto>()
 
                 _selectedLocation.value?.let {
                     conditions.add(
-                        ConditionDto(
+                        CreateConditionDto(
                             type = "LOCATION",
                             value = "${it.lat}, ${it.long}, ${it.name}"
                         )
@@ -187,7 +187,7 @@ class CreateCapsuleViewModel @Inject constructor(
 
                 _selectedWeather.value?.let {
                     conditions.add(
-                        ConditionDto(
+                        CreateConditionDto(
                             type = "WEATHER",
                             value = it.name
                         )
@@ -196,7 +196,7 @@ class CreateCapsuleViewModel @Inject constructor(
 
                 _selectedAction.value?.let {
                     conditions.add(
-                        ConditionDto(
+                        CreateConditionDto(
                             type = "ACTION",
                             value = it.label
                         )

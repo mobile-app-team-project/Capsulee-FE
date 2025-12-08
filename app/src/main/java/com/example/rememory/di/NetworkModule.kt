@@ -7,6 +7,9 @@ import com.example.rememory.data.remote.api.AuthService
 import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.api.FriendService
 import com.example.rememory.data.remote.api.UserService
+import com.example.rememory.data.repository.CapsuleDetailRepositoryImpl
+import com.example.rememory.domain.repository.CapsuleDetailRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -91,6 +94,13 @@ object NetworkModule {
     @Singleton
     fun provideAuthService(retrofit: Retrofit): AuthService {
         return retrofit.create(AuthService::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideCapsuleDetailRepository(service: CapsuleService): CapsuleDetailRepository {
+        return CapsuleDetailRepositoryImpl(service)
     }
 
 }

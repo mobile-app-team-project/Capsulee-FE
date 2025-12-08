@@ -3,9 +3,6 @@ import com.example.rememory.domain.repository.CapsuleRepository
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rememory.data.remote.api.MockCapsuleService
-import com.example.rememory.data.remote.mock.CapsuleMockData
-import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.domain.model.CapsuleDomainModel
 import com.example.rememory.domain.model.CapsuleStatsDomainModel
 import dagger.hilt.android.lifecycle.HiltViewModel

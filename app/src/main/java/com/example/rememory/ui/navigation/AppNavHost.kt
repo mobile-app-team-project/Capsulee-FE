@@ -9,12 +9,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.material3.Scaffold
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import com.example.rememory.ui.components.BottomNavigationBar
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.example.rememory.ui.screens.auth.LoginScreen
 import com.example.rememory.ui.screens.auth.SignUpScreen
 import com.example.rememory.ui.screens.capsuleCreate.CapsuleCompleteScreen
 import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
+import com.example.rememory.ui.screens.capsuleDetail.CapsuleDetailScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
 import com.example.rememory.ui.screens.onboarding.OnboardingScreen
@@ -104,6 +107,20 @@ fun AppNavHost(
 
             composable("login") {
                 LoginScreen(navController = navController) // 실제 구현된 Composable로 연결
+            }
+
+            composable(
+                route = "capsule_detail/{capsuleId}", // 파라미터 받기 위한 설정
+                arguments = listOf(
+                    navArgument("capsuleId") { type = NavType.IntType } // 정수형으로 받음
+                )
+            ) { backStackEntry ->
+                val capsuleId = backStackEntry.arguments?.getInt("capsuleId") ?: 0
+
+                CapsuleDetailScreen(
+                    navController = navController,
+                    capsuleId = capsuleId
+                )
             }
         }
     }
