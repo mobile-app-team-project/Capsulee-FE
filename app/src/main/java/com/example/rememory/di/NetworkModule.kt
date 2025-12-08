@@ -8,11 +8,13 @@ import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.api.FriendService
 import com.example.rememory.data.remote.api.UserService
 import com.example.rememory.data.repository.AuthRepositoryImpl
+import com.example.rememory.data.repository.CapsuleDetailRepositoryImpl
 import com.example.rememory.data.repository.CapsuleRepositoryImpl
 import com.example.rememory.data.repository.FriendRepositoryImpl
 import com.example.rememory.data.repository.HomeRepositoryImpl
 import com.example.rememory.data.repository.UserRepositoryImpl
 import com.example.rememory.domain.repository.AuthRepository
+import com.example.rememory.domain.repository.CapsuleDetailRepository
 import com.example.rememory.domain.repository.CapsuleRepository
 import com.example.rememory.domain.repository.FriendRepository
 import com.example.rememory.domain.repository.HomeRepository
@@ -95,6 +97,7 @@ object NetworkModule {
     @Singleton
     fun provideCapsuleService(retrofit: Retrofit): CapsuleService {
         return retrofit.create(CapsuleService::class.java)
+//        return com.example.rememory.data.remote.api.MockCapsuleService()
     }
 
     // 4. Repository 구현체 제공 (Service 인스턴스 주입받아 생성)
@@ -143,5 +146,11 @@ object NetworkModule {
     @Singleton
     fun provideHomeRepository(): HomeRepository {
         return HomeRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCapsuleDetailRepository(service: CapsuleService): CapsuleDetailRepository {
+        return CapsuleDetailRepositoryImpl(service)
     }
 }
