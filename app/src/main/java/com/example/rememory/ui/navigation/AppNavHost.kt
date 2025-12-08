@@ -109,10 +109,8 @@ fun AppNavHost(
                     navArgument("capsuleId") { type = NavType.IntType } // 정수형으로 받음
                 )
             ) { backStackEntry ->
-                // 넘겨받은 capsuleId 추출
                 val capsuleId = backStackEntry.arguments?.getInt("capsuleId") ?: 0
 
-                // 상세 화면으로 이동
                 CapsuleDetailScreen(
                     navController = navController,
                     capsuleId = capsuleId

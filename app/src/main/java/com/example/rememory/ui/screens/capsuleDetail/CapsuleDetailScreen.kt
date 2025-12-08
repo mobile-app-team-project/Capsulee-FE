@@ -156,10 +156,6 @@ private fun LockedStateContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-//        // Participants 카드
-//        val participants = data.participants.map {
-//            ParticipantInfo(nickname = it.userName, isReady = false)
-//        }
         ParticipantsCard(participants = data.participants)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -291,7 +287,6 @@ private fun CapsuleInfoCard(
     }
 }
 
-// ✅ Participants 카드 (가로 배치, 상태 없음)
 @Composable
 private fun ParticipantsCard(participants: List<CapsuleParticipant>) {
     Card(
@@ -324,7 +319,6 @@ private fun ParticipantsCard(participants: List<CapsuleParticipant>) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ 가로 스크롤 레이아웃
             if (participants.size <= 4) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -348,7 +342,6 @@ private fun ParticipantsCard(participants: List<CapsuleParticipant>) {
     }
 }
 
-// ✅ 참여자 아이템 (세로 배치: 아이콘 + 이름)
 @Composable
 private fun ParticipantItem(userName: String) {
     Column(
@@ -445,9 +438,11 @@ private fun WaitingAndReadyStateContent(
     onReadyClick: () -> Unit,
     onOpenClick: () -> Unit
 ) {
-    val isAllConditionsMet = data.conditions.all { it.isUnlocked }
+    val isAllConditionsMet = data.conditions.isEmpty() || data.conditions.all { it.isUnlocked }
     val isUserReady = data.status == CapsuleDetailStatus.READY
     val isAllParticipantsReady = data.participants.all { it.isReady }
+
+    val isSolo = data.participants.size == 1
 
     Column(
         modifier = Modifier
@@ -466,34 +461,42 @@ private fun WaitingAndReadyStateContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // === WAITING 상태 (Ready 버튼 누르기 전) ===
-        if (!isUserReady) {
-            // Ready 버튼 (모든 조건 충족 시에만 표시)
-            if (isAllConditionsMet) {
-                PrimaryButton(
-                    text = "I'm Ready!",
-                    onClick = onReadyClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(45.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // 조건 카드들
-            data.conditions.forEach { condition ->
-                ConditionCard(
-                    cardInfo = ConditionInfo(
-                        type = when (condition.type.uppercase()) {
-                            "LOCATION" -> ConditionType.LOCATION
-                            "WEATHER" -> ConditionType.WEATHER
-                            else -> ConditionType.ACTION
-                        },
-                        isUnlocked = condition.isUnlocked,
-                        items = getConditionItems(condition)
+        if (isSolo && isAllConditionsMet && !isUserReady) {
+            AllReadyCard(onOpenClick = onOpenClick)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        else {
+            // === WAITING 상태 (Ready 버튼 누르기 전) ===
+            if (!isUserReady) {
+                // Ready 버튼 (모든 조건 충족 시에만 표시)
+                if (isAllConditionsMet) {
+                    PrimaryButton(
+                        text = "I'm Ready!",
+                        onClick = onReadyClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(45.dp)
                     )
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // 조건 카드들
+                if (data.conditions.isNotEmpty()) {
+                    data.conditions.forEach { condition ->
+                        ConditionCard(
+                            cardInfo = ConditionInfo(
+                                type = when (condition.type.uppercase()) {
+                                    "LOCATION" -> ConditionType.LOCATION
+                                    "WEATHER" -> ConditionType.WEATHER
+                                    else -> ConditionType.ACTION
+                                },
+                                isUnlocked = condition.isUnlocked,
+                                items = getConditionItems(condition)
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
             }
         }
 
@@ -509,21 +512,23 @@ private fun WaitingAndReadyStateContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Ready Progress 바
-            ReadyProgressCard(
-                readyCount = data.readyCount,
-                totalCount = data.totalCount
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            if (!isSolo) {
+                ReadyProgressCard(
+                    readyCount = data.readyCount,
+                    totalCount = data.totalCount
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
 
         // Participants 카드 (공통)
-        val participants = data.participants.map {
-            ParticipantInfo(nickname = it.userName, isReady = it.isReady)
+        if (!isSolo) {
+            val participants = data.participants.map {
+                ParticipantInfo(nickname = it.userName, isReady = it.isReady)
+            }
+            ParticipantCard(participants = participants)
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        ParticipantCard(participants = participants)
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

@@ -8,6 +8,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CapsuleDetailResponseDto(
     val status: String,  // "LOCKED", "WAITING", "READY", "OPENED"
+    val capsuleDetail: CapsuleDetailWrapperDto
+)
+
+@Serializable
+data class CapsuleDetailWrapperDto(
     val capsuleInfo: CapsuleDetailInfoDto,
     val participants: List<ParticipantDto>,
     val conditions: List<ConditionDto>? = null,
@@ -26,7 +31,7 @@ data class CapsuleDetailInfoDto(
 
 @Serializable
 data class ParticipantDto(
-    val user_id: Int,
+    val userId: Int,
     val userName: String,
     val status: String? = null
 )
@@ -39,7 +44,7 @@ data class ConditionDto(
 )
 
 @Serializable
-data class ProgressDto( // ✅ 추가
+data class ProgressDto(
     val readyCount: Int,
     val totalCount: Int
 )

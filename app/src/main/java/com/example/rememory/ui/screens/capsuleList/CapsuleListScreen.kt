@@ -2,6 +2,7 @@ package com.example.rememory.ui.screens.capsuleList
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -110,7 +111,12 @@ fun CapsuleListScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(uiState.capsules) { capsule ->
-                        CapsuleListItemCard(capsule)
+                        CapsuleListItemCard(
+                            capsuleInfo = capsule,
+                            onCapsuleClick = { capsuleId ->
+                                navController.navigate(Screen.CapsuleDetail.createRoute(capsuleId))
+                            }
+                        )
                     }
                 }
             }
@@ -120,7 +126,10 @@ fun CapsuleListScreen(
 }
 
 @Composable
-private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
+private fun CapsuleListItemCard(
+    capsuleInfo: CapsuleDomainModel,
+    onCapsuleClick: (Int) -> Unit
+){
     val iconRes =
         if(capsuleInfo.isOpened){
             R.drawable.ic_lock_opened
@@ -140,7 +149,8 @@ private fun CapsuleListItemCard(capsuleInfo: CapsuleDomainModel){
             containerColor = Color.White
         ),
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onCapsuleClick(capsuleInfo.id) },
         shape = RoundedCornerShape(12.dp),
     ) {
         Row (

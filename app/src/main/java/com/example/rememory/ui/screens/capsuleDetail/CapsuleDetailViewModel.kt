@@ -2,6 +2,7 @@ package com.example.rememory.ui.screens.capsuleDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rememory.domain.model.CapsuleCondition
 import com.example.rememory.domain.model.CapsuleDetailData
 import com.example.rememory.domain.model.CapsuleDetailStatus
 import com.example.rememory.domain.repository.CapsuleDetailRepository
@@ -48,8 +49,65 @@ class CapsuleDetailViewModel @Inject constructor(
                 if (data.status == CapsuleDetailStatus.LOCKED) {
                     startTimer(data.capsuleInfo.openTime)
                 }
+
+                if (data.status == CapsuleDetailStatus.WAITING) {
+                    checkConditions(data.conditions)
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, errorMessage = "Error: ${e.message}") }
+            }
+        }
+    }
+
+    private suspend fun checkConditions(conditions: List<CapsuleCondition>) {
+        conditions.forEach { condition ->
+            when (condition.type.uppercase()) {
+                "WEATHER" -> {
+                    // 날씨는 자동으로 체크 (위치 정보 필요)
+                    // TODO: 현재 위치 가져와서 날씨 체크
+                }
+                "LOCATION" -> {
+                    // 위치는 사용자가 버튼 클릭 시 체크
+                    // (자동으로 체크하지 않음)
+                }
+                "ACTION" -> {
+                    // 액션은 사용자가 수행 시 체크
+                    // (자동으로 체크하지 않음)
+                }
+            }
+        }
+    }
+
+    fun checkLocationCondition(latitude: Double, longitude: Double) {
+        viewModelScope.launch {
+            try {
+                val result = repository.checkLocationCondition(
+                    currentCapsuleId,
+                    latitude,
+                    longitude
+                )
+
+                // 조건 충족 여부에 따라 UI 업데이트
+                if (result.isReadyAvailable) {
+                    // 모든 조건이 충족되었으면 데이터 새로고침
+                    loadCapsuleDetail(currentCapsuleId)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "위치 확인 실패: ${e.message}") }
+            }
+        }
+    }
+
+    fun checkActionCondition(actionType: String) {
+        viewModelScope.launch {
+            try {
+                val result = repository.checkActionCondition(currentCapsuleId, actionType)
+
+                if (result.isReadyAvailable) {
+                    loadCapsuleDetail(currentCapsuleId)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "액션 확인 실패: ${e.message}") }
             }
         }
     }
@@ -61,8 +119,42 @@ class CapsuleDetailViewModel @Inject constructor(
 
                 val updatedData = repository.getCapsuleDetail(currentCapsuleId)
                 _uiState.update { it.copy(data = updatedData) }
+
+                startLobbyPolling()
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "Ready 처리 실패: ${e.message}") }
+            }
+        }
+    }
+
+    private fun startLobbyPolling() {
+        viewModelScope.launch {
+            while (true) {
+                try {
+                    val lobbyStatus = repository.checkLobbyStatus(currentCapsuleId)
+
+                    if (lobbyStatus.opened) {
+                        // 캡슐이 열렸으면 폴링 중지하고 데이터 새로고침
+                        loadCapsuleDetail(currentCapsuleId)
+                        break
+                    }
+
+                    // 참가자 상태 업데이트
+                    _uiState.update { currentState ->
+                        val updatedParticipants = currentState.data?.participants?.map { participant ->
+                            val lobbyParticipant = lobbyStatus.participants.find { it.userId == participant.userId }
+                            participant.copy(isReady = lobbyParticipant?.ready ?: false)
+                        } ?: emptyList()
+
+                        currentState.copy(
+                            data = currentState.data?.copy(participants = updatedParticipants)
+                        )
+                    }
+
+                    delay(2000) // 2초마다 폴링
+                } catch (e: Exception) {
+                    break
+                }
             }
         }
     }

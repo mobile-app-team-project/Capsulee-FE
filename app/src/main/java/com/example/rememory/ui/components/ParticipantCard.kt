@@ -72,13 +72,11 @@ fun ParticipantCard(
                     fontWeight = FontWeight.Medium)
             }
 
-            LazyColumn (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(260.dp, 260.dp)
+            Column (
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(15.dp)
             ){
-                items(participants.size){ index ->
-                    val participant = participants[index]
+                participants.forEach { participant ->
 
                     Row (
                         Modifier

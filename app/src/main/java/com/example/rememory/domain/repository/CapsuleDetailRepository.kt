@@ -17,7 +17,6 @@ interface CapsuleDetailRepository {
      * @param capsuleId 캡슐 ID
      * @return 업데이트된 캡슐 상세 정보
      */
-//    suspend fun markAsReady(capsuleId: Int): CapsuleDetailData
 
     suspend fun checkLocationCondition(
         capsuleId: Int,
