@@ -77,6 +77,7 @@ dependencies {
 
     // [수정] Places 라이브러리 (중복 제거 후 버전 명시)
     implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation(libs.androidx.compose.foundation)
 
     // 테스트 관련
     testImplementation(libs.junit)

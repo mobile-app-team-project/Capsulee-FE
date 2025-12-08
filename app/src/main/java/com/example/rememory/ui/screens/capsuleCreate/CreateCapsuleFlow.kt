@@ -17,6 +17,7 @@ import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.model.WeatherCondition
 import com.example.rememory.ui.screens.capsuleCreate.components.ActionScreen
+import com.example.rememory.ui.screens.capsuleCreate.components.CreateFinalConfirm
 import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
@@ -31,17 +32,26 @@ fun isNextEnabled(
     selectedConditions: List<ConditionType>,
     selectedWeather: WeatherCondition? = null,
     selectedAction: ActionCondition? = null,
-    currentCondition: ConditionType? = null
+    currentCondition: ConditionType? = null,
+    selectedRecipientsCount: Int = 0,
+    conditionOrder: List<ConditionType> = emptyList()
 ): Boolean {
+    val recipientStep = 4 + conditionOrder.size
+
+    if (step == recipientStep) {
+        return selectedRecipientsCount > 0
+    }
+
     return when (step) {
         1 -> capsuleTitle.isNotBlank() && capsuleMessage.isNotBlank()
-        in 4..10 -> {
+        in 4 until recipientStep -> {
             when (currentCondition) {
                 ConditionType.WEATHER -> selectedWeather != null
                 ConditionType.ACTION -> selectedAction != null
                 else -> true // LOCATION이나 기타 조건은 항상 true
             }
         }
+
         else -> true
     }
 }
@@ -76,7 +86,7 @@ fun getStepSubtitle(step: Int, conditionOrder: List<ConditionType>): String =
         }
         4 + conditionOrder.size -> "Send it just for you, or invite friends\n" +
                 "to unlock it together"
-        else -> "Please review your capsule before it's sealed forever"
+        else -> "Please review your capsule before\n" + "it's sealed forever"
     }
 
 // Next 버튼 텍스트 변경
@@ -135,6 +145,9 @@ fun CreateCapsuleFlow(
             orderedConditionSteps[step - 4]
         else null
 
+    val selectedRecipientsCount =
+        viewModel.recipients.collectAsState().value.count { it.selected }
+
     CreateCapsuleScreen(
         title = getStepTitle(step, orderedConditionSteps),
         subtitle = getStepSubtitle(step, orderedConditionSteps),
@@ -149,7 +162,9 @@ fun CreateCapsuleFlow(
             selectedConditions = selectedConditions,
             selectedWeather = viewModel.selectedWeather.collectAsState().value,
             selectedAction = viewModel.selectedAction.collectAsState().value,
-            currentCondition = currentCondition
+            currentCondition = currentCondition,
+            selectedRecipientsCount = selectedRecipientsCount,   // ⬅ 추가
+            conditionOrder = orderedConditionSteps
         ),
         isSingleButton = false,
         onPrevious = {
@@ -216,13 +231,8 @@ fun CreateCapsuleFlow(
             // 수신자 선택 단계
             4 + orderedConditionSteps.size -> Step4RecipientSelection(viewModel = viewModel)
 
-//            // 마지막 확인 단계
-//            else -> StepFinalConfirm(
-//                onSubmit = {
-//                    // API 호출
-//                    navController.popBackStack()
-//                }
-//            )
+            // 마지막 확인 단계
+            else -> CreateFinalConfirm(viewModel)
         }
     }
 }
