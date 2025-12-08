@@ -13,6 +13,7 @@ import com.example.rememory.domain.model.SelectedLocation
 import com.example.rememory.domain.model.WeatherCondition
 import com.example.rememory.domain.repository.CapsuleRepository
 import com.example.rememory.domain.repository.FriendRepository
+import com.example.rememory.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -29,7 +30,8 @@ import java.time.LocalTime
 class CreateCapsuleViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val friendRepository: FriendRepository,
-    private val capsuleRepository: CapsuleRepository
+    private val capsuleRepository: CapsuleRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     // 캡슐 제목 상태 관리
@@ -142,14 +144,27 @@ class CreateCapsuleViewModel @Inject constructor(
     fun fetchFriendList() {
         viewModelScope.launch {
             try {
+                val me = userRepository.getMyInfo()
+
                 val friends = friendRepository.getFriendList()
-                val mapped = friends.map {
-                    Recipient(
-                        id = it.userId,
-                        username = it.username,
-                        loginId = it.userLoginId,
-                        selected = false
+                val mapped = buildList {
+
+                    add (
+                        Recipient(
+                            id = me.userId,
+                            username = "Me (${me.nickname})",
+                            loginId = me.loginId,
+                            selected = false
+                        )
                     )
+                    addAll(friends.map {
+                        Recipient(
+                            id = it.userId,
+                            username = it.username,
+                            loginId = it.userLoginId,
+                            selected = false
+                        )
+                    })
                 }
                 _recipients.value = mapped
             } catch (e: Exception) {
