@@ -4,12 +4,21 @@ import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.dto.CapsuleItemDto
 import com.example.rememory.data.remote.dto.CapsuleStatsDto
 import com.example.rememory.data.remote.dto.ConditionInfoDto
+import com.example.rememory.data.remote.dto.CreateCapsuleRequest
+import com.example.rememory.data.remote.dto.CreateCapsuleResponse
 import com.example.rememory.domain.model.CapsuleDomainModel
 import com.example.rememory.domain.model.CapsuleStatsDomainModel
 import com.example.rememory.domain.model.ConditionDomainModel
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.repository.CapsuleListDomain
 import com.example.rememory.domain.repository.CapsuleRepository
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -33,6 +42,24 @@ class CapsuleRepositoryImpl @Inject constructor(
             stats = domainStats,
             capsules = domainCapsules
         )
+    }
+
+    override suspend fun createCapsule(
+        request: CreateCapsuleRequest,
+        imageFile: File?
+    ): CreateCapsuleResponse {
+        // 1. JSON 직렬화
+        val json = Json.encodeToString(request)
+        val dataPart = RequestBody.create("application/json".toMediaType(), json)
+
+        // 2. 이미지 파일 part
+        val imagePart = imageFile?.let {
+            val reqFile = it.asRequestBody("image/*".toMediaType())
+            MultipartBody.Part.createFormData("imageFile", it.name, reqFile)
+        }
+
+        // 3. API 호출
+        return capsuleService.createCapsule(data = dataPart, imageFile = imagePart)
     }
 }
 

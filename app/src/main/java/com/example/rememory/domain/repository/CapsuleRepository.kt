@@ -1,7 +1,10 @@
 package com.example.rememory.domain.repository
 
+import com.example.rememory.data.remote.dto.CreateCapsuleRequest
+import com.example.rememory.data.remote.dto.CreateCapsuleResponse
 import com.example.rememory.domain.model.CapsuleDomainModel
 import com.example.rememory.domain.model.CapsuleStatsDomainModel
+import java.io.File
 
 /**
  * 캡슐 관련 데이터 접근 인터페이스 (도메인 규칙 정의)
@@ -13,6 +16,8 @@ interface CapsuleRepository {
      * @param isSent true면 보낸 캡슐(sent), false면 받은 캡슐(received)을 요청합니다.
      */
     suspend fun getCapsuleList(isSent: Boolean): CapsuleListDomain
+
+    suspend fun createCapsule(request: CreateCapsuleRequest, imageFile: File?): CreateCapsuleResponse
 }
 
 /**

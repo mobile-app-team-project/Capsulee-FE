@@ -3,6 +3,7 @@ package com.example.rememory.ui.screens.capsuleCreate
 import CreateCapsuleScreen
 import Step1BasicInfo
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -175,7 +176,26 @@ fun CreateCapsuleFlow(
             }
         },
         showBottomBar = currentCondition != ConditionType.LOCATION,
-        onNext = { step = goToNextStep(step, orderedConditionSteps) }
+        onNext = {
+            val reviewStep = 3 + orderedConditionSteps.size + 2
+            if (step == reviewStep) {
+                // 마지막 단계에서 submit 호출
+                viewModel.submitCapsule(
+                    onSuccess = {
+                        // 예: 캡슐 목록으로 이동
+                        navController.navigate("capsule_create_complete") {
+                            popUpTo("create_capsule_flow") { inclusive = true }
+                        }
+                    },
+                    onFailure = { error ->
+                        // 예: 에러 메시지 출력 (임시용)
+                        Log.e("CreateCapsule", "Failed to create capsule", error)
+                    }
+                )
+            } else {
+                step = goToNextStep(step, orderedConditionSteps)
+            }
+        }
     ) {
 
         when (step) {

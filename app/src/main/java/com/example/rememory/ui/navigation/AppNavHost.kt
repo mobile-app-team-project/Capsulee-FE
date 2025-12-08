@@ -13,6 +13,7 @@ import com.example.rememory.ui.components.BottomNavigationBar
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rememory.ui.screens.auth.LoginScreen
 import com.example.rememory.ui.screens.auth.SignUpScreen
+import com.example.rememory.ui.screens.capsuleCreate.CapsuleCompleteScreen
 import com.example.rememory.ui.screens.capsuleCreate.CreateCapsuleFlow
 import com.example.rememory.ui.screens.capsuleList.CapsuleListScreen
 import com.example.rememory.ui.screens.capsuleList.CapsuleListViewModel
@@ -37,7 +38,8 @@ fun AppNavHost(
         BottomNavItem.Capsule.route,
         BottomNavItem.Home.route,
         BottomNavItem.Friends.route,
-        BottomNavItem.MyPage.route
+        BottomNavItem.MyPage.route,
+        Screen.CapsuleCreateComplete.route
     )
 
     Scaffold(
@@ -86,6 +88,10 @@ fun AppNavHost(
             composable(Screen.CapsuleCreate.route) {
                 // 이 화면으로 이동하면, 위의 조건문에 따라 bottomBar가 렌더링되지 않습니다.
                 CreateCapsuleFlow(navController = navController)
+            }
+
+            composable(Screen.CapsuleCreateComplete.route) {
+                CapsuleCompleteScreen(navController = navController)
             }
 
             composable(Screen.Onboarding.route) {

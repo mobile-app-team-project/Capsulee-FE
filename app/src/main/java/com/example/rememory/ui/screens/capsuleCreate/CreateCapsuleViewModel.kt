@@ -4,11 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rememory.data.remote.dto.ConditionDto
+import com.example.rememory.data.remote.dto.CreateCapsuleRequest
 import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
 import com.example.rememory.domain.model.Recipient
 import com.example.rememory.domain.model.SelectedLocation
 import com.example.rememory.domain.model.WeatherCondition
+import com.example.rememory.domain.repository.CapsuleRepository
 import com.example.rememory.domain.repository.FriendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,12 +22,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 @HiltViewModel
 class CreateCapsuleViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val friendRepository: FriendRepository
+    private val friendRepository: FriendRepository,
+    private val capsuleRepository: CapsuleRepository
 ) : ViewModel() {
 
     // 캡슐 제목 상태 관리
@@ -150,6 +155,74 @@ class CreateCapsuleViewModel @Inject constructor(
             } catch (e: Exception) {
                 e.printStackTrace()
                 // 에러 처리 (예: 메시지 표시, 로그 출력 등)
+            }
+        }
+    }
+
+    fun submitCapsule(
+        onSuccess: () -> Unit,
+        onFailure: (Throwable) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val title = _title.value
+                val content = _message.value
+                val openTime = LocalDateTime.of(
+                    _selectedDate.value,
+                    _selectedTime.value ?: LocalTime.MIDNIGHT
+                ).toString()
+
+                val recipientIds = _recipients.value.filter { it.selected }.map { it.id }
+
+                val conditions = mutableListOf<ConditionDto>()
+
+                _selectedLocation.value?.let {
+                    conditions.add(
+                        ConditionDto(
+                            type = "LOCATION",
+                            value = "${it.lat}, ${it.long}, ${it.name}"
+                        )
+                    )
+                }
+
+                _selectedWeather.value?.let {
+                    conditions.add(
+                        ConditionDto(
+                            type = "WEATHER",
+                            value = it.name
+                        )
+                    )
+                }
+
+                _selectedAction.value?.let {
+                    conditions.add(
+                        ConditionDto(
+                            type = "ACTION",
+                            value = it.label
+                        )
+                    )
+                }
+
+                val payload = mapOf(
+                    "title" to title,
+                    "content" to content,
+                    "openTime" to openTime,
+                    "recipientIds" to recipientIds,
+                    "conditions" to conditions
+                )
+
+                val request = CreateCapsuleRequest(
+                    title = title,
+                    content = content,
+                    openTime = openTime,
+                    recipientIds = recipientIds,
+                    conditions = conditions
+                )
+
+                capsuleRepository.createCapsule(request, _imageFile.value)
+                onSuccess()
+            } catch (e: Exception) {
+                onFailure(e)
             }
         }
     }
