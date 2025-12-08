@@ -71,7 +71,7 @@ object CapsuleMockData {
     fun getSentCapsulesDto(): CapsuleListResponseDto {
         return CapsuleListResponseDto(
             stats = mockStats,
-            capsules = listOf(sentCapsule1, sentCapsule2,sentCapsule3,sentCapsule4)
+            capsule = listOf(sentCapsule1, sentCapsule2,sentCapsule3,sentCapsule4)
         )
     }
 
@@ -81,7 +81,7 @@ object CapsuleMockData {
     fun getReceivedCapsulesDto(): CapsuleListResponseDto {
         return CapsuleListResponseDto(
             stats = mockStats,
-            capsules = listOf(receivedCapsule1, receivedCapsule2)
+            capsule = listOf(receivedCapsule1, receivedCapsule2)
         )
     }
 }

@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 data class CapsuleListResponseDto(
     val stats: CapsuleStatsDto,
     @SerialName("capsule")
-    val capsules: List<CapsuleItemDto>
+    val capsule: List<CapsuleItemDto>
 )
 
 @Serializable

@@ -1,6 +1,7 @@
 package com.example.rememory.data.repository
 
 
+import com.example.rememory.data.local.TokenManager
 import com.example.rememory.data.remote.api.FriendService
 import com.example.rememory.data.remote.dto.FriendListDto
 import com.example.rememory.data.remote.dto.FriendRequestDto
@@ -11,7 +12,8 @@ import com.example.rememory.domain.repository.FriendRepository
 import javax.inject.Inject
 
 class FriendRepositoryImpl @Inject constructor(
-    private val friendService: FriendService
+    private val friendService: FriendService,
+    private val tokenManager: TokenManager
 ): FriendRepository {
 
     // ----------------------------------------------------
@@ -61,7 +63,6 @@ class FriendRepositoryImpl @Inject constructor(
         friendService.deleteFriendApi(friendshipId)
     }
 
-    // ✅ [추가] 친구 요청 보내기 기능 (POST)
     override suspend fun requestFriend(receiverLoginId: String): Boolean {
         val requestBody = FriendRequestSendDto(receiverLoginId = receiverLoginId)
         try {
@@ -77,7 +78,8 @@ class FriendRepositoryImpl @Inject constructor(
         senderLoginId: String,
         actionStatus: String
     ): Boolean {
-        val receiverLoginId = "user3" // 🚨 TODO: 현재 로그인한 사용자 ID로 대체해야 함
+        val receiverLoginId = tokenManager.getLoggedInUserLoginId()
+            ?: throw IllegalStateException("Logged-in user ID not found.")
 
         val requestBody = FriendRequestProcessDto(
             senderLoginId = senderLoginId,

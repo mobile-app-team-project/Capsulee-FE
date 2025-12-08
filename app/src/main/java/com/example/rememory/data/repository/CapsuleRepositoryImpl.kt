@@ -26,7 +26,7 @@ class CapsuleRepositoryImpl @Inject constructor(
         val responseDto = capsuleService.getCapsules(type)
 
         // 2. DTO를 Domain Model로 변환
-        val domainCapsules = responseDto.capsules.map { it.toDomainModel() }
+        val domainCapsules = responseDto.capsule.map { it.toDomainModel() }
         val domainStats = responseDto.stats.toDomainModel()
 
         return CapsuleListDomain(

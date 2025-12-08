@@ -166,7 +166,7 @@ class FriendManagingViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "데이터 로드 실패: ${e.message}",
+                        errorMessage = "load data Failed: ${e.message}",
                         friendList = emptyList(),
                         requestList = emptyList()
                     )
@@ -221,8 +221,23 @@ class FriendManagingViewModel @Inject constructor(
                 val success = repository.processFriendRequest(senderLoginId, actionStatus)
 
                 if (success) {
-                    // 2. 요청 성공 시, 친구 목록 및 요청 목록 갱신 (전체 목록 재로드)
-                    loadFriendData()
+                    _state.update { currentState ->
+                        // 요청 목록에서 해당 항목을 수동으로 제거
+                        val updatedRequestList = currentState.requestList.filter { it.userLoginId != senderLoginId }
+
+                        // 수락했을 경우, 친구 목록에 해당 항목을 수동으로 추가 (FriendItemDomainModel 객체 재구성 필요)
+                        val updatedFriendList = if (isAccepted) {
+                            val acceptedFriend = currentState.requestList.find { it.userLoginId == senderLoginId }
+                            if (acceptedFriend != null) currentState.friendList + acceptedFriend else currentState.friendList
+                        } else {
+                            currentState.friendList
+                        }
+
+                        currentState.copy(
+                            requestList = updatedRequestList,
+                            friendList = updatedFriendList
+                        )
+                    }
                 } else {
                     _state.update { it.copy(errorMessage = "요청 처리 실패.") }
                 }
