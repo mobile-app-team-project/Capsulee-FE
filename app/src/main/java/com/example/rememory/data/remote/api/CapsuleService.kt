@@ -76,4 +76,9 @@ interface CapsuleService {
         @Path("capsuleId") capsuleId: Int
     ): LobbyStatusResponseDto
 
+    @POST("/unlock/open/{capsuleId}")
+    suspend fun openCapsule(
+        @Path("capsuleId") capsuleId: Int
+    ): CapsuleDetailResponseDto
+
 }

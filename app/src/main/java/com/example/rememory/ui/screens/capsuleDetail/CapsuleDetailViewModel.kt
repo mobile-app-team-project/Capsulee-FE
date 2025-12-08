@@ -2,6 +2,8 @@ package com.example.rememory.ui.screens.capsuleDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rememory.data.remote.dto.ActionConditionRequestDto
+import com.example.rememory.data.remote.dto.LocationConditionRequestDto
 import com.example.rememory.domain.model.CapsuleCondition
 import com.example.rememory.domain.model.CapsuleDetailData
 import com.example.rememory.domain.model.CapsuleDetailStatus
@@ -49,31 +51,8 @@ class CapsuleDetailViewModel @Inject constructor(
                 if (data.status == CapsuleDetailStatus.LOCKED) {
                     startTimer(data.capsuleInfo.openTime)
                 }
-
-                if (data.status == CapsuleDetailStatus.WAITING) {
-                    checkConditions(data.conditions)
-                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, errorMessage = "Error: ${e.message}") }
-            }
-        }
-    }
-
-    private suspend fun checkConditions(conditions: List<CapsuleCondition>) {
-        conditions.forEach { condition ->
-            when (condition.type.uppercase()) {
-                "WEATHER" -> {
-                    // 날씨는 자동으로 체크 (위치 정보 필요)
-                    // TODO: 현재 위치 가져와서 날씨 체크
-                }
-                "LOCATION" -> {
-                    // 위치는 사용자가 버튼 클릭 시 체크
-                    // (자동으로 체크하지 않음)
-                }
-                "ACTION" -> {
-                    // 액션은 사용자가 수행 시 체크
-                    // (자동으로 체크하지 않음)
-                }
             }
         }
     }
@@ -81,17 +60,15 @@ class CapsuleDetailViewModel @Inject constructor(
     fun checkLocationCondition(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             try {
-                val result = repository.checkLocationCondition(
-                    currentCapsuleId,
-                    latitude,
-                    longitude
+                val requestDto = LocationConditionRequestDto(
+                    capsuleId = currentCapsuleId,
+                    latitude = latitude,
+                    longitude = longitude
                 )
 
-                // 조건 충족 여부에 따라 UI 업데이트
-                if (result.isReadyAvailable) {
-                    // 모든 조건이 충족되었으면 데이터 새로고침
-                    loadCapsuleDetail(currentCapsuleId)
-                }
+                repository.checkLocationCondition(requestDto)
+
+                loadCapsuleDetail(currentCapsuleId)
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "위치 확인 실패: ${e.message}") }
             }
@@ -101,11 +78,14 @@ class CapsuleDetailViewModel @Inject constructor(
     fun checkActionCondition(actionType: String) {
         viewModelScope.launch {
             try {
-                val result = repository.checkActionCondition(currentCapsuleId, actionType)
+                val requestDto = ActionConditionRequestDto(
+                    capsuleId = currentCapsuleId,
+                    matched = true
+                )
 
-                if (result.isReadyAvailable) {
-                    loadCapsuleDetail(currentCapsuleId)
-                }
+                repository.checkActionCondition(requestDto)
+
+                loadCapsuleDetail(currentCapsuleId)
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = "액션 확인 실패: ${e.message}") }
             }
@@ -117,8 +97,7 @@ class CapsuleDetailViewModel @Inject constructor(
             try {
                 repository.setReady(currentCapsuleId, true)
 
-                val updatedData = repository.getCapsuleDetail(currentCapsuleId)
-                _uiState.update { it.copy(data = updatedData) }
+                loadCapsuleDetail(currentCapsuleId)
 
                 startLobbyPolling()
             } catch (e: Exception) {
@@ -165,7 +144,7 @@ class CapsuleDetailViewModel @Inject constructor(
             delay(2500) // 캡슐 열리는 연출 시간 (2.5초)
 
             try {
-                val data = repository.getCapsuleDetail(currentCapsuleId)
+                val data = repository.openCapsule(currentCapsuleId)
                 _uiState.update { it.copy(data = data, isOpening = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isOpening = false, errorMessage = "캡슐 열기 실패: ${e.message}") }

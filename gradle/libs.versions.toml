@@ -12,6 +12,7 @@ playServicesMaps = "19.2.0"
 roomCompiler = "2.8.4"
 places = "5.1.1"
 foundation = "1.10.0"
+runtime = "1.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

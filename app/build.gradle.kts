@@ -83,6 +83,7 @@ dependencies {
 
     // 3. DI (Hilt)
     implementation("com.google.dagger:hilt-android:2.55")
+    implementation(libs.androidx.compose.runtime)
     kapt("com.google.dagger:hilt-compiler:2.55")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
