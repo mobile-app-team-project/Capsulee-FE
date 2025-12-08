@@ -1,10 +1,19 @@
 package com.example.rememory.ui.screens.capsuleDetail
 
+import android.Manifest
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.media.MediaRecorder
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -18,9 +27,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +47,10 @@ import com.example.rememory.domain.model.CapsuleDetailStatus
 import com.example.rememory.domain.model.CapsuleParticipant
 import com.example.rememory.ui.components.*
 import com.example.rememory.ui.theme.*
+import com.example.rememory.util.getPreciseLocation
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 @Composable
 fun CapsuleDetailScreen(
@@ -43,6 +59,37 @@ fun CapsuleDetailScreen(
     viewModel: CapsuleDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // 위치 권한 요청 런처
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            coroutineScope.launch {
+//                val location = getPreciseLocation(context)
+//                location?.let {
+//                    viewModel.checkLocationCondition(it.latitude, it.longitude)
+//                }
+                viewModel.checkLocationCondition(37.50508, 126.95706)
+            }
+        }
+    }
+
+    // 마이크 권한 요청 런처 (소리 감지용)
+    val audioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // 소리 감지 시작
+            startSoundDetection(context) { detected ->
+                if (detected) {
+                    viewModel.checkActionCondition("SOUND")
+                }
+            }
+        }
+    }
 
     LaunchedEffect(capsuleId) {
         viewModel.loadCapsuleDetail(capsuleId)
@@ -50,7 +97,6 @@ fun CapsuleDetailScreen(
 
     Scaffold(
         topBar = {
-            // ✅ [수정] 홈 화면처럼 상태바 패딩을 추가하여 헤더 위치와 크기감을 맞춤
             Column(
                 modifier = Modifier.background(BackgroundLight)
             ) {
@@ -84,11 +130,9 @@ fun CapsuleDetailScreen(
                 )
             } else {
                 uiState.data?.let { data ->
-                    // Page 6: 오픈 로딩 상태 (Ready 완료 후 오픈 버튼 클릭 시)
                     if (uiState.isOpening) {
                         OpeningLoadingContent()
                     } else {
-                        // 상태별 분기
                         when (data.status) {
                             CapsuleDetailStatus.LOCKED ->
                                 LockedStateContent(
@@ -103,7 +147,46 @@ fun CapsuleDetailScreen(
                                 WaitingAndReadyStateContent(
                                     data = data,
                                     onReadyClick = { viewModel.onReadyClick() },
-                                    onOpenClick = { viewModel.onOpenCapsuleClick() }
+                                    onOpenClick = { viewModel.onOpenCapsuleClick() },
+                                    onConditionClick = { condition ->
+                                        if (!condition.isUnlocked) {
+                                            when (condition.type.uppercase()) {
+                                                "LOCATION", "WEATHER" -> {
+                                                    // 위치 권한 확인 후 실제 위치 사용
+//                                                    locationPermissionLauncher.launch(
+//                                                        Manifest.permission.ACCESS_FINE_LOCATION
+//                                                    )
+                                                    viewModel.checkLocationCondition(37.50508, 126.95706)
+                                                }
+                                                "ACTION" -> {
+                                                    // 행동 조건 값 파싱
+                                                    val actionValue = condition.value.uppercase()
+                                                    when {
+                                                        actionValue.contains("SHAKE") || actionValue.contains("SHAKING") -> {
+                                                            // 흔들기 감지 시작
+                                                            startShakeDetection(context, viewModel)
+                                                        }
+                                                        actionValue.contains("SOUND") -> {
+                                                            // 소리 감지 (마이크 권한 필요)
+                                                            audioPermissionLauncher.launch(
+                                                                Manifest.permission.RECORD_AUDIO
+                                                            )
+                                                        }
+                                                        actionValue.contains("TAP") -> {
+                                                            // 탭 감지는 화면에서 직접 처리
+                                                            // (아래 TapDetectionOverlay 사용)
+                                                        }
+                                                        actionValue.contains("COMPASS") || actionValue.contains("NORTH") -> {
+                                                            // 방향 감지
+                                                            startCompassDetection(context, viewModel)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    context = context,
+                                    viewModel = viewModel
                                 )
 
                             CapsuleDetailStatus.OPENED ->
@@ -113,6 +196,208 @@ fun CapsuleDetailScreen(
                 }
             }
         }
+    }
+}
+
+// 흔들기 감지
+@Composable
+fun rememberShakeDetection(
+    context: Context,
+    onShakeDetected: () -> Unit
+) {
+    val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
+    val accelerometer = remember { sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) }
+
+    val shakeListener = remember {
+        object : SensorEventListener {
+            private var lastUpdate: Long = 0
+            private var lastX = 0f
+            private var lastY = 0f
+            private var lastZ = 0f
+            private var shakeCount = 0
+            private val SHAKE_THRESHOLD = 15f
+            private val TIME_THRESHOLD = 500L
+
+            override fun onSensorChanged(event: SensorEvent) {
+                val currentTime = System.currentTimeMillis()
+
+                if (currentTime - lastUpdate > 100) {
+                    val diffTime = currentTime - lastUpdate
+                    lastUpdate = currentTime
+
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+
+                    val speed = sqrt(
+                        ((x - lastX) * (x - lastX) +
+                                (y - lastY) * (y - lastY) +
+                                (z - lastZ) * (z - lastZ)).toDouble()
+                    ) / diffTime * 10000
+
+                    if (speed > SHAKE_THRESHOLD) {
+                        shakeCount++
+                        if (shakeCount >= 3) {
+                            onShakeDetected()
+                            shakeCount = 0
+                        }
+                    }
+
+                    lastX = x
+                    lastY = y
+                    lastZ = z
+                }
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+    }
+
+    return DisposableEffect(Unit) {
+        accelerometer?.let {
+            sensorManager.registerListener(
+                shakeListener,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
+
+        onDispose {
+            sensorManager.unregisterListener(shakeListener)
+        }
+    }
+}
+
+fun startShakeDetection(context: Context, viewModel: CapsuleDetailViewModel) {
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    var lastUpdate: Long = 0
+    var lastX = 0f
+    var lastY = 0f
+    var lastZ = 0f
+    var shakeCount = 0
+
+    val shakeListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val currentTime = System.currentTimeMillis()
+
+            if (currentTime - lastUpdate > 100) {
+                val diffTime = currentTime - lastUpdate
+                lastUpdate = currentTime
+
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                val speed = sqrt(
+                    ((x - lastX) * (x - lastX) +
+                            (y - lastY) * (y - lastY) +
+                            (z - lastZ) * (z - lastZ)).toDouble()
+                ) / diffTime * 10000
+
+                if (speed > 15f) {
+                    shakeCount++
+                    if (shakeCount >= 3) {
+                        viewModel.checkActionCondition("SHAKE")
+                        sensorManager.unregisterListener(this)
+                        shakeCount = 0
+                    }
+                }
+
+                lastX = x
+                lastY = y
+                lastZ = z
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    accelerometer?.let {
+        sensorManager.registerListener(
+            shakeListener,
+            it,
+            SensorManager.SENSOR_DELAY_NORMAL
+        )
+    }
+}
+
+// 소리 감지
+fun startSoundDetection(context: Context, onSoundDetected: (Boolean) -> Unit) {
+    try {
+        val mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            setOutputFile("${context.cacheDir}/temp_audio.3gp")
+            prepare()
+            start()
+        }
+
+        // 2초 후 진폭 측정
+        Thread {
+            Thread.sleep(2000)
+            val amplitude = mediaRecorder.maxAmplitude
+            mediaRecorder.stop()
+            mediaRecorder.release()
+
+            // 진폭이 일정 수준 이상이면 소리 감지
+            onSoundDetected(amplitude > 5000)
+        }.start()
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        onSoundDetected(false)
+    }
+}
+
+// 나침반 (방향) 감지
+fun startCompassDetection(context: Context, viewModel: CapsuleDetailViewModel) {
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+    val gravity = FloatArray(3)
+    val geomagnetic = FloatArray(3)
+
+    val compassListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            when (event.sensor.type) {
+                Sensor.TYPE_ACCELEROMETER -> {
+                    System.arraycopy(event.values, 0, gravity, 0, event.values.size)
+                }
+                Sensor.TYPE_MAGNETIC_FIELD -> {
+                    System.arraycopy(event.values, 0, geomagnetic, 0, event.values.size)
+                }
+            }
+
+            val R = FloatArray(9)
+            val I = FloatArray(9)
+
+            if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
+                val orientation = FloatArray(3)
+                SensorManager.getOrientation(R, orientation)
+
+                // 방위각 계산 (라디안을 각도로 변환)
+                val azimuth = Math.toDegrees(orientation[0].toDouble()).toFloat()
+
+                // 북쪽을 향하면 (-10도 ~ +10도 범위)
+                if (azimuth in -10f..10f || azimuth in 350f..360f) {
+                    viewModel.checkActionCondition("COMPASS")
+                    sensorManager.unregisterListener(this)
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    magnetometer?.let {
+        sensorManager.registerListener(compassListener, it, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+    accelerometer?.let {
+        sensorManager.registerListener(compassListener, it, SensorManager.SENSOR_DELAY_NORMAL)
     }
 }
 
@@ -134,12 +419,10 @@ private fun LockedStateContent(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 진행률 표시 카드
         ProcessCard(processPercent = data.capsuleInfo.processPercent ?: 0)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 캡슐 이미지 + 타이머
         CapsuleTimerSection(
             remainingDays = remainingDays,
             remainingTime = remainingTime,
@@ -160,14 +443,12 @@ private fun LockedStateContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Capsule Details 카드
         CapsuleDetailsCard(conditions = data.conditions)
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-// 진행률 카드
 @Composable
 private fun ProcessCard(processPercent: Int) {
     Card(
@@ -195,7 +476,6 @@ private fun ProcessCard(processPercent: Int) {
     }
 }
 
-// 캡슐 + 타이머 섹션
 @Composable
 private fun CapsuleTimerSection(
     remainingDays: Int,
@@ -206,7 +486,6 @@ private fun CapsuleTimerSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 캡슐 이미지 (HomeScreen과 동일)
         Box(
             contentAlignment = Alignment.Center
         ) {
@@ -216,7 +495,6 @@ private fun CapsuleTimerSection(
                 modifier = Modifier.size(280.dp)
             )
 
-            // 타이머 오버레이
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.offset(y = 60.dp)
@@ -237,8 +515,6 @@ private fun CapsuleTimerSection(
                 )
             }
         }
-
-
     }
 }
 
@@ -322,14 +598,13 @@ private fun ParticipantsCard(participants: List<CapsuleParticipant>) {
             if (participants.size <= 4) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly  // ✅ 균등 분배
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     participants.forEach { participant ->
                         ParticipantItem(participant.userName)
                     }
                 }
             } else {
-                // 참여자가 많으면 스크롤
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -348,7 +623,6 @@ private fun ParticipantItem(userName: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // 프로필 아이콘
         Box(
             modifier = Modifier
                 .size(50.dp)
@@ -363,7 +637,6 @@ private fun ParticipantItem(userName: String) {
             )
         }
 
-        // 이름
         Text(
             text = userName,
             fontSize = 14.sp,
@@ -374,7 +647,6 @@ private fun ParticipantItem(userName: String) {
     }
 }
 
-// Capsule Details 카드
 @Composable
 private fun CapsuleDetailsCard(conditions: List<CapsuleCondition>) {
     Card(
@@ -436,98 +708,140 @@ private fun CapsuleDetailsCard(conditions: List<CapsuleCondition>) {
 private fun WaitingAndReadyStateContent(
     data: CapsuleDetailData,
     onReadyClick: () -> Unit,
-    onOpenClick: () -> Unit
+    onOpenClick: () -> Unit,
+    onConditionClick: (CapsuleCondition) -> Unit,
+    context: Context,
+    viewModel: CapsuleDetailViewModel
 ) {
     val isAllConditionsMet = data.conditions.isEmpty() || data.conditions.all { it.isUnlocked }
     val isUserReady = data.status == CapsuleDetailStatus.READY
     val isAllParticipantsReady = data.participants.all { it.isReady }
-
     val isSolo = data.participants.size == 1
 
-    Column(
+    // TAP 조건 감지
+    var tapCount by remember { mutableStateOf(0) }
+    var tapCondition by remember { mutableStateOf<CapsuleCondition?>(null) }
+
+    LaunchedEffect(data.conditions) {
+        tapCondition = data.conditions.find {
+            it.type.uppercase() == "ACTION" &&
+                    it.value.uppercase().contains("TAP") &&
+                    !it.isUnlocked
+        }
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .then(
+                if (tapCondition != null) {
+                    Modifier.pointerInput(Unit) {
+                        detectTapGestures {
+                            tapCount++
+                            if (tapCount >= 3) {
+                                viewModel.checkActionCondition("TAP")
+                                tapCount = 0
+                            }
+                        }
+                    }
+                } else Modifier
+            )
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 캡슐 정보 카드 (공통)
-        CapsuleInfoCardWithIcon(
-            title = data.capsuleInfo.title,
-            from = data.capsuleInfo.from,
-            openTime = data.capsuleInfo.openTime
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isSolo && isAllConditionsMet && !isUserReady) {
-            AllReadyCard(onOpenClick = onOpenClick)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+        ) {
             Spacer(modifier = Modifier.height(16.dp))
-        }
-        else {
-            // === WAITING 상태 (Ready 버튼 누르기 전) ===
-            if (!isUserReady) {
-                // Ready 버튼 (모든 조건 충족 시에만 표시)
-                if (isAllConditionsMet) {
-                    PrimaryButton(
-                        text = "I'm Ready!",
-                        onClick = onReadyClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(45.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
 
-                // 조건 카드들
-                if (data.conditions.isNotEmpty()) {
-                    data.conditions.forEach { condition ->
-                        ConditionCard(
-                            cardInfo = ConditionInfo(
-                                type = when (condition.type.uppercase()) {
-                                    "LOCATION" -> ConditionType.LOCATION
-                                    "WEATHER" -> ConditionType.WEATHER
-                                    else -> ConditionType.ACTION
-                                },
-                                isUnlocked = condition.isUnlocked,
-                                items = getConditionItems(condition)
-                            )
+            CapsuleInfoCardWithIcon(
+                title = data.capsuleInfo.title,
+                from = data.capsuleInfo.from,
+                openTime = data.capsuleInfo.openTime
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isSolo && isAllConditionsMet && !isUserReady) {
+                AllReadyCard(onOpenClick = onOpenClick)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            else {
+                if (!isUserReady) {
+                    if (isAllConditionsMet) {
+                        PrimaryButton(
+                            text = "I'm Ready!",
+                            onClick = onReadyClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(45.dp)
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    if (data.conditions.isNotEmpty()) {
+                        data.conditions.forEach { condition ->
+                            ConditionCard(
+                                cardInfo = ConditionInfo(
+                                    type = when (condition.type.uppercase()) {
+                                        "LOCATION" -> ConditionType.LOCATION
+                                        "WEATHER" -> ConditionType.WEATHER
+                                        else -> ConditionType.ACTION
+                                    },
+                                    isUnlocked = condition.isUnlocked,
+                                    items = getConditionItems(condition)
+                                ),
+                                onClick = { onConditionClick(condition) }
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
-        }
 
-        // === READY 상태 (Ready 버튼 누른 후) ===
-        if (isUserReady) {
-            // Waiting 또는 All Ready 카드
-            if (!isAllParticipantsReady) {
-                WaitingCard()
-            } else {
-                AllReadyCard(onOpenClick = onOpenClick)
+            if (isUserReady) {
+                if (!isAllParticipantsReady) {
+                    WaitingCard()
+                } else {
+                    AllReadyCard(onOpenClick = onOpenClick)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (!isSolo) {
+                    ReadyProgressCard(
+                        readyCount = data.readyCount,
+                        totalCount = data.totalCount
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ready Progress 바
             if (!isSolo) {
-                ReadyProgressCard(
-                    readyCount = data.readyCount,
-                    totalCount = data.totalCount
-                )
+                val participants = data.participants.map {
+                    ParticipantInfo(nickname = it.userName, isReady = it.isReady)
+                }
+                ParticipantCard(participants = participants)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
-        // Participants 카드 (공통)
-        if (!isSolo) {
-            val participants = data.participants.map {
-                ParticipantInfo(nickname = it.userName, isReady = it.isReady)
+        // TAP 카운터 표시
+        if (tapCondition != null && tapCount > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .background(PurplePrimary.copy(alpha = 0.9f), RoundedCornerShape(50))
+                    .padding(24.dp)
+            ) {
+                Text(
+                    text = "$tapCount / 3",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
-            ParticipantCard(participants = participants)
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -549,7 +863,6 @@ private fun CapsuleInfoCardWithIcon(
                 .padding(vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 원형 배경 + 캡슐 아이콘
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -593,17 +906,12 @@ private fun CapsuleInfoCardWithIcon(
     }
 }
 
-// 조건별 상세 정보 생성 함수
 @Composable
 private fun getConditionItems(condition: CapsuleCondition): List<ConditionItem> {
     return when (condition.type.uppercase()) {
         "LOCATION" -> {
-            // Location은 여러 정보를 보여줄 수 있음
-            // 실제 구현에서는 서버에서 받은 데이터를 파싱해야 함
             listOf(
-                ConditionItem("Current Location", "Seoul Station"),
-                ConditionItem("Target Location", condition.value),
-                ConditionItem("Distance", "2.3km")
+                ConditionItem("Target Location", condition.value)
             )
         }
         "WEATHER" -> {
@@ -611,7 +919,7 @@ private fun getConditionItems(condition: CapsuleCondition): List<ConditionItem> 
                 ConditionItem("Weather Lock", condition.value)
             )
         }
-        else -> { // ACTION
+        else -> {
             listOf(
                 ConditionItem("Action Lock", condition.value)
             )
@@ -619,9 +927,6 @@ private fun getConditionItems(condition: CapsuleCondition): List<ConditionItem> 
     }
 }
 
-// ------------------------------------------------------------------------
-// Page 6: Loading (캡슐 열리는 중)
-// ------------------------------------------------------------------------
 @Composable
 private fun OpeningLoadingContent() {
     Column(
@@ -643,9 +948,6 @@ private fun OpeningLoadingContent() {
     }
 }
 
-// ------------------------------------------------------------------------
-// Page 7: OPENED (내용 확인)
-// ------------------------------------------------------------------------
 @Composable
 private fun OpenedStateContent(data: CapsuleDetailData) {
     Column(
@@ -656,7 +958,6 @@ private fun OpenedStateContent(data: CapsuleDetailData) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 캡슐 정보 카드 (아이콘 포함)
         CapsuleInfoCardWithIcon(
             title = data.capsuleInfo.title,
             from = data.capsuleInfo.from,
@@ -665,23 +966,19 @@ private fun OpenedStateContent(data: CapsuleDetailData) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Opened Together (Participants)
         OpenedTogetherCard(participants = data.participants)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Message 카드
         MessageCard(content = data.capsuleInfo.content ?: "No Content")
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Capsule Details 카드 (기존 것 재사용)
         CapsuleDetailsCard(conditions = data.conditions)
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
 
 @Composable
 fun ParticipantStatusRow(participant: CapsuleParticipant) {
@@ -720,7 +1017,7 @@ fun ParticipantStatusRow(participant: CapsuleParticipant) {
 private fun WaitingCard() {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xBFAEEBD6)), // 연한 민트색
+        colors = CardDefaults.cardColors(containerColor = Color(0xBFAEEBD6)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -734,7 +1031,7 @@ private fun WaitingCard() {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = MontserratFontFamily,
-                color = BlackText // 진한 민트
+                color = BlackText
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -749,12 +1046,11 @@ private fun WaitingCard() {
     }
 }
 
-// --- All Ready 카드 ---
 @Composable
 private fun AllReadyCard(onOpenClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xBFF7B8CD)), // 연한 핑크
+        colors = CardDefaults.cardColors(containerColor = Color(0xBFF7B8CD)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -792,7 +1088,6 @@ private fun AllReadyCard(onOpenClick: () -> Unit) {
     }
 }
 
-// --- Ready Progress 카드 ---
 @Composable
 private fun ReadyProgressCard(readyCount: Int, totalCount: Int) {
     Card(
@@ -866,7 +1161,6 @@ private fun OpenedTogetherCard(participants: List<CapsuleParticipant>) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 가로 스크롤 레이아웃
             if (participants.size <= 4) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -906,7 +1200,7 @@ private fun MessageCard(content: String) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_message), // 문서 아이콘
+                    painter = painterResource(id = R.drawable.ic_message),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
                     tint = BlackText

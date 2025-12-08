@@ -3,6 +3,7 @@ package com.example.rememory.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +34,9 @@ import com.example.rememory.ui.theme.PurpleExtraLight
 
 @Composable
 fun ConditionCard(
-    cardInfo: ConditionInfo, modifier: Modifier = Modifier
+    cardInfo: ConditionInfo,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ){
     val iconRes = when(cardInfo.type){
         ConditionType.WEATHER -> R.drawable.ic_clear_day_black
@@ -49,6 +52,7 @@ fun ConditionCard(
             .fillMaxWidth()
             .border(1.dp, GrayBorder,RoundedCornerShape(12.dp))
             .background(Color.White)
+            .clickable { onClick() }
             .padding(15.dp)
     ){
         Row(
@@ -74,7 +78,6 @@ fun ConditionCard(
                 )
             }
 
-            // 오른쪽: 태그
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
@@ -93,7 +96,7 @@ fun ConditionCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp)) // 둥근 모서리
+                .clip(RoundedCornerShape(8.dp))
                 .background(PurpleExtraLight)
                 .padding(16.dp),
             Arrangement.spacedBy(11.dp)
@@ -103,7 +106,7 @@ fun ConditionCard(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
+                ) {
                     Text(text = item.label)
                     if (item.value != null) {
                         Text(text = item.value, fontWeight = FontWeight.SemiBold)

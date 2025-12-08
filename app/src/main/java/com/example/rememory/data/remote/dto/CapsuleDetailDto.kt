@@ -16,7 +16,7 @@ data class CapsuleDetailWrapperDto(
     val capsuleInfo: CapsuleDetailInfoDto,
     val participants: List<ParticipantDto>,
     val conditions: List<ConditionDto>? = null,
-    val progress: ProgressDto? = null
+    val readyProgress: ProgressDto? = null
 )
 
 @Serializable
@@ -40,7 +40,7 @@ data class ParticipantDto(
 data class ConditionDto(
     val type: String,
     val value: String,
-    val isUnlocked: Boolean? = null
+    val matched: Boolean? = null
 )
 
 @Serializable
@@ -51,6 +51,7 @@ data class ProgressDto(
 
 @Serializable
 data class LocationConditionRequestDto(
+    val capsuleId: Int,
     val latitude: Double,
     val longitude: Double
 )
@@ -81,13 +82,14 @@ data class WeatherConditionDto(
 // 행동 조건 체크 요청
 @Serializable
 data class ActionConditionRequestDto(
-    val actionType: String // "SHAKE"
+    val capsuleId: Int,
+    val matched: Boolean = true
 )
 
 // 행동 조건 체크 응답
 @Serializable
 data class ActionConditionResponseDto(
-    val actionCondition: ActionConditionDetailDto,
+    val actionCondition: ActionConditionDetailDto? = null,
     val isReadyAvailable: Boolean
 )
 

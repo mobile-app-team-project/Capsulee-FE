@@ -78,4 +78,10 @@ interface CapsuleService {
 
     @GET("/capsules/home")
     suspend fun getHomeInfo(): CapsuleDetailResponseDto
+  
+    @POST("/unlock/open/{capsuleId}")
+    suspend fun openCapsule(
+        @Path("capsuleId") capsuleId: Int
+    ): CapsuleDetailResponseDto
+
 }

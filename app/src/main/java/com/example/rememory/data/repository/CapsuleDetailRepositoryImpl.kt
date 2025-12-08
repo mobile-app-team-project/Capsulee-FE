@@ -4,6 +4,7 @@ import com.example.rememory.data.remote.api.CapsuleService
 import com.example.rememory.data.remote.dto.ActionConditionRequestDto
 import com.example.rememory.data.remote.dto.CapsuleDetailResponseDto
 import com.example.rememory.data.remote.dto.LocationConditionRequestDto
+import com.example.rememory.data.remote.dto.LocationConditionResponseDto
 import com.example.rememory.data.remote.dto.ReadyRequestDto
 import com.example.rememory.domain.model.*
 import com.example.rememory.domain.repository.CapsuleDetailRepository
@@ -18,32 +19,18 @@ class CapsuleDetailRepositoryImpl(
     }
 
     override suspend fun checkLocationCondition(
-        capsuleId: Int,
-        latitude: Double,
-        longitude: Double
-    ): LocationConditionResult {
-        val request = LocationConditionRequestDto(latitude, longitude)
-        val response = capsuleService.checkLocationCondition(capsuleId, request)
-
-        return LocationConditionResult(
-            locationMatched = response.locationCondition?.matched ?: false,
-            weatherMatched = response.weatherCondition?.matched ?: false,
-            distance = response.locationCondition?.distance,
-            currentWeather = response.weatherCondition?.currentWeather,
-            requiredWeather = response.weatherCondition?.requiredWeather,
-            isReadyAvailable = response.isReadyAvailable
-        )
+        request: LocationConditionRequestDto
+    ): LocationConditionResponseDto {
+        return capsuleService.checkLocationCondition(request.capsuleId, request)
     }
 
     override suspend fun checkActionCondition(
-        capsuleId: Int,
-        actionType: String
+        request: ActionConditionRequestDto
     ): ActionConditionResult {
-        val request = ActionConditionRequestDto(actionType)
-        val response = capsuleService.checkActionCondition(capsuleId, request)
+        val response = capsuleService.checkActionCondition(request.capsuleId, request)
 
         return ActionConditionResult(
-            matched = response.actionCondition.matched,
+            matched = response.actionCondition?.matched ?: true,
             isReadyAvailable = response.isReadyAvailable
         )
     }
@@ -68,6 +55,10 @@ class CapsuleDetailRepositoryImpl(
                 )
             }
         )
+    }
+
+    override suspend fun openCapsule(capsuleId: Int): CapsuleDetailData {
+        return capsuleService.openCapsule(capsuleId).toDomainModel()
     }
 }
 
@@ -101,7 +92,7 @@ private fun CapsuleDetailResponseDto.toDomainModel(): CapsuleDetailData {
         CapsuleCondition(
             type = dto.type,
             value = dto.value,
-            isUnlocked = dto.isUnlocked ?: false
+            isUnlocked = dto.matched ?: false
         )
     } ?: emptyList()
 
@@ -110,7 +101,7 @@ private fun CapsuleDetailResponseDto.toDomainModel(): CapsuleDetailData {
         capsuleInfo = capsuleInfo,
         participants = participants,
         conditions = conditions,
-        readyCount = this.capsuleDetail.progress?.readyCount ?: 0,
-        totalCount = this.capsuleDetail.progress?.totalCount ?: participants.size
+        readyCount = this.capsuleDetail.readyProgress?.readyCount ?: 0,
+        totalCount = this.capsuleDetail.readyProgress?.totalCount ?: participants.size
     )
 }
