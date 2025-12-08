@@ -10,8 +10,9 @@ import com.example.rememory.domain.model.UserSearchDomainModel
 import com.example.rememory.domain.model.UserStatus
 import com.example.rememory.domain.repository.UserRepository
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
-class UserRepositoryImpl(
+class UserRepositoryImpl @Inject constructor(
     private val userService: UserService
 ): UserRepository {
 

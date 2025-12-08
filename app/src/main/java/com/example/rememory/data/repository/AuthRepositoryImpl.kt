@@ -5,8 +5,9 @@ import com.example.rememory.data.remote.dto.LoginRequestDto
 import com.example.rememory.data.remote.dto.RegisterRequestDto
 import com.example.rememory.domain.model.AuthTokens
 import com.example.rememory.domain.repository.AuthRepository
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val authService: AuthService
 ) : AuthRepository {
 
