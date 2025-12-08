@@ -8,9 +8,12 @@ import javax.inject.Inject
 class HomeRepositoryImpl @Inject constructor(
     private val api: CapsuleService
 ) : HomeRepository {
-    override suspend fun getHomeData(): CapsuleDetailResponseDto {
-//        delay(500) // 네트워크 지연 시뮬레이션
-//        return HomeMockData.getHomeScreenData()
-        return api.getHomeInfo()
+    override suspend fun getHomeData(): CapsuleDetailResponseDto? {
+        val response = api.getHomeInfoResponse() // Response<CapsuleDetailResponseDto>
+        return if (response.isSuccessful && response.body() != null) {
+            response.body()
+        } else {
+            null // 홈 화면에서는 homeData == null 처리로 UI 구성 가능
+        }
     }
 }

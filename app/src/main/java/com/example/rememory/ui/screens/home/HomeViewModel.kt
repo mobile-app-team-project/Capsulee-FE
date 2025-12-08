@@ -42,14 +42,25 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val data = repository.getHomeData()
 
-            _uiState.update {
-                it.copy(
-                    homeData = data.capsuleDetail,
-                    capsuleStatus = data.status,
-                    isLoading = false
-                )
-            }
+            if (data != null) {
+                _uiState.update {
+                    it.copy(
+                        homeData = data.capsuleDetail, // 정상 응답
+                        capsuleStatus = data.status,
+                        isLoading = false
+                    )
+                }
 
+                updateRemainingTime()
+            } else {
+                _uiState.update {
+                    it.copy(
+                        homeData = null, // 서버에서 캡슐이 없는 경우 등
+                        capsuleStatus = "",
+                        isLoading = false
+                    )
+                }
+            }
             updateRemainingTime()
         }
     }

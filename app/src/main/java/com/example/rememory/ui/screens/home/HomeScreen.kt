@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -65,7 +66,43 @@ fun HomeScreen(
             ) {
                 CircularProgressIndicator(color = PurplePrimary)
             }
-        } else {
+        } else if (uiState.homeData == null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(150.dp))
+
+                Image(
+                    painter = painterResource(R.drawable.ic_capsulee_open), // 기본 캡슐 아이콘
+                    contentDescription = "Empty Capsule",
+                    modifier = Modifier.size(320.dp)
+                )
+
+                Spacer(modifier = Modifier.height(100.dp))
+
+                PrimaryButton(
+                    text = "Create Capsule",
+                    onClick = {
+                        navController.navigate("capsule_create")
+                    },
+                    modifier = Modifier
+                        .width(260.dp)
+                        .height(58.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    textStyle = TextStyle(
+                        fontFamily = MontserratFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 24.sp
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+        }
+        else {
             uiState.homeData?.let { data ->
                 Column(
                     modifier = Modifier

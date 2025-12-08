@@ -18,6 +18,7 @@ import retrofit2.http.Query
 import retrofit2.http.Body
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 
@@ -77,7 +78,7 @@ interface CapsuleService {
     ): LobbyStatusResponseDto
 
     @GET("/capsules/home")
-    suspend fun getHomeInfo(): CapsuleDetailResponseDto
+    suspend fun getHomeInfoResponse(): Response<CapsuleDetailResponseDto>
   
     @POST("/unlock/open/{capsuleId}")
     suspend fun openCapsule(
