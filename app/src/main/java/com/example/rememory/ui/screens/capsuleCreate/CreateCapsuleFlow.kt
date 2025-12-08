@@ -11,7 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.rememory.domain.model.ActionCondition
 import com.example.rememory.domain.model.ConditionType
@@ -20,8 +20,8 @@ import com.example.rememory.ui.screens.capsuleCreate.components.ActionScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.LocationScreen
 import com.example.rememory.ui.screens.capsuleCreate.components.Step2UnlockTime
 import com.example.rememory.ui.screens.capsuleCreate.components.Step3SelectConditions
+import com.example.rememory.ui.screens.capsuleCreate.components.Step4RecipientSelection
 import com.example.rememory.ui.screens.capsuleCreate.components.WeatherScreen
-import kotlinx.coroutines.flow.compose
 
 // 다음 단계 버튼 활성화 조건
 fun isNextEnabled(
@@ -93,7 +93,7 @@ fun goToNextStep(step: Int, conditionOrder: List<ConditionType>): Int =
 @Composable
 fun CreateCapsuleFlow(
     navController: NavController,
-    viewModel: CreateCapsuleViewModel = viewModel()
+    viewModel: CreateCapsuleViewModel = hiltViewModel()
 ) {
     var step by remember { mutableStateOf(1) }
 
@@ -212,10 +212,10 @@ fun CreateCapsuleFlow(
                     else -> {}
                 }
             }
-//
-//            // 수신자 선택 단계
-//            4 + orderedConditionSteps.size -> StepRecipientSelection()
-//
+
+            // 수신자 선택 단계
+            4 + orderedConditionSteps.size -> Step4RecipientSelection(viewModel = viewModel)
+
 //            // 마지막 확인 단계
 //            else -> StepFinalConfirm(
 //                onSubmit = {
