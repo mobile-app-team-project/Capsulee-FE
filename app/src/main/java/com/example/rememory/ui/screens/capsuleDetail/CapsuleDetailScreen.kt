@@ -679,27 +679,28 @@ private fun CapsuleDetailsCard(conditions: List<CapsuleCondition>) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            conditions.forEach { condition ->
-                Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                    Text(
-                        text = "${condition.type} Lock:",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = MontserratFontFamily,
-                        color = BlackText
-                    )
-                    Text(
-                        text = condition.value,
-                        fontSize = 14.sp,
-                        fontFamily = MontserratFontFamily,
-                        color = GrayText
-                    )
+            conditions
+                .filterNot { condition -> condition.type == "TIME" }
+                .forEach { condition ->
+                    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                        Text(
+                            text = "${condition.type} Lock:",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = MontserratFontFamily,
+                            color = BlackText
+                        )
+                        Text(
+                            text = condition.value,
+                            fontSize = 14.sp,
+                            fontFamily = MontserratFontFamily,
+                            color = GrayText
+                        )
 
-                    if (condition != conditions.last()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-            }
+
         }
     }
 }
@@ -787,7 +788,9 @@ private fun WaitingAndReadyStateContent(
                                     type = when (condition.type.uppercase()) {
                                         "LOCATION" -> ConditionType.LOCATION
                                         "WEATHER" -> ConditionType.WEATHER
-                                        else -> ConditionType.ACTION
+                                        "ACTION" -> ConditionType.ACTION
+                                        "TIME" -> return@forEach // TIME은 건너뜀
+                                        else -> return@forEach // 알 수 없는 타입도 건너뜀
                                     },
                                     isUnlocked = condition.isUnlocked,
                                     items = getConditionItems(condition)
