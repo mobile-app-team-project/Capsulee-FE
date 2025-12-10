@@ -7,11 +7,13 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaRecorder
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -30,8 +32,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
 import com.example.rememory.R
 import com.example.rememory.domain.model.CapsuleCondition
 import com.example.rememory.domain.model.CapsuleDetailData
@@ -759,7 +765,9 @@ private fun WaitingAndReadyStateContent(
             CapsuleInfoCardWithIcon(
                 title = data.capsuleInfo.title,
                 from = data.capsuleInfo.from,
-                openTime = data.capsuleInfo.openTime
+                openTime = data.capsuleInfo.openTime,
+                isOpened = data.status == CapsuleDetailStatus.OPENED,
+                imageUrl = data.capsuleInfo.imageUrl
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -853,8 +861,14 @@ private fun WaitingAndReadyStateContent(
 private fun CapsuleInfoCardWithIcon(
     title: String,
     from: String,
-    openTime: String
+    openTime: String,
+    isOpened: Boolean,
+    imageUrl: String? = null,
+    onImageClick: () -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        Log.d("CapsuleDetail", "imageUrl = ${imageUrl}")
+    }
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -872,11 +886,24 @@ private fun CapsuleInfoCardWithIcon(
                     .background(PurpleExtraLight, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_capsulee_main),
-                    contentDescription = "Capsule",
-                    modifier = Modifier.size(80.dp)
-                )
+                if (isOpened && !imageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Capsule Photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .clickable { onImageClick() }
+                            .background(Color.Gray) // 이미지 안 뜨는지 확인용
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_capsulee_main),
+                        contentDescription = "Capsule",
+                        modifier = Modifier.size(80.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -953,6 +980,8 @@ private fun OpeningLoadingContent() {
 
 @Composable
 private fun OpenedStateContent(data: CapsuleDetailData) {
+    var isImageViewerVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -964,7 +993,10 @@ private fun OpenedStateContent(data: CapsuleDetailData) {
         CapsuleInfoCardWithIcon(
             title = data.capsuleInfo.title,
             from = data.capsuleInfo.from,
-            openTime = data.capsuleInfo.openTime
+            openTime = data.capsuleInfo.openTime,
+            isOpened = data.status == CapsuleDetailStatus.OPENED,
+            imageUrl = data.capsuleInfo.imageUrl,
+            onImageClick = { isImageViewerVisible = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -980,6 +1012,13 @@ private fun OpenedStateContent(data: CapsuleDetailData) {
         CapsuleDetailsCard(conditions = data.conditions)
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (isImageViewerVisible && !data.capsuleInfo.imageUrl.isNullOrBlank()) {
+        FullscreenImageViewer(
+            imagePath = data.capsuleInfo.imageUrl,
+            onDismiss = { isImageViewerVisible = false }
+        )
     }
 }
 
@@ -1227,5 +1266,27 @@ private fun MessageCard(content: String) {
                 lineHeight = 20.sp
             )
         }
+    }
+}
+
+@Composable
+fun FullscreenImageViewer(
+    imagePath: String,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .clickable { onDismiss() },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = rememberImagePainter(data = imagePath),
+            contentDescription = "Fullscreen Image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        )
     }
 }

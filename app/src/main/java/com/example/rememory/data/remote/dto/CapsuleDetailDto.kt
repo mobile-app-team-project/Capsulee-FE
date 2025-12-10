@@ -26,7 +26,8 @@ data class CapsuleDetailInfoDto(
     val from: String,
     val openTime: String,
     val processPercent: Int? = null,
-    val content: String? = null
+    val content: String? = null,
+    val imageUrl: String? = null
 )
 
 @Serializable

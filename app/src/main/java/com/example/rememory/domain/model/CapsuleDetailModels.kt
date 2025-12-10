@@ -19,7 +19,8 @@ data class CapsuleDetailInfo(
     val from: String,
     val openTime: String,
     val processPercent: Int? = null,  // LOCKED 상태일 때만
-    val content: String? = null       // OPENED 상태일 때만
+    val content: String? = null,      // OPENED 상태일 때만
+    val imageUrl: String? = null      // OPENED 상태일 때만
 )
 
 /**

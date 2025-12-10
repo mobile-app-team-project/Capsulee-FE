@@ -77,7 +77,8 @@ private fun CapsuleDetailResponseDto.toDomainModel(): CapsuleDetailData {
         from = this.capsuleDetail.capsuleInfo.from,
         openTime = this.capsuleDetail.capsuleInfo.openTime,
         processPercent = this.capsuleDetail.capsuleInfo.processPercent,
-        content = this.capsuleDetail.capsuleInfo.content
+        content = this.capsuleDetail.capsuleInfo.content,
+        imageUrl = this.capsuleDetail.capsuleInfo.imageUrl
     )
 
     val participants = this.capsuleDetail.participants.map { dto ->
